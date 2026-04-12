@@ -1,13 +1,13 @@
-# [Project Name] — Claude Instructions
+# Outreach AI Platform — Claude Instructions
 
-> Stack: [e.g., Next.js 14 · TypeScript · PostgreSQL · Prisma · Railway]
-> Last updated: [YYYY-MM-DD]
+> Stack: Next.js (App Router) · TypeScript · NestJS · PostgreSQL (Supabase) · Prisma · Vercel · Railway · pnpm
+> Last updated: 2026-04-12
 
 ## Project Context
 
-[2–3 sentences: what this product does, who it serves, and the core problem it solves.]
+Outreach AI Platform is an email-first outbound SaaS for **SDRs, sales teams, founders, and growth teams**. It automates lead management, multi-step email sequences, queued sending with retries and rate limits, reply detection, analytics, and a lightweight Kanban pipeline—built for **real daily usage**, not a demo.
 
-**Tech stack summary**: [Frontend] · [Backend] · [Database] · [Hosting]
+**Tech stack summary**: Next.js (web) · NestJS (API) · PostgreSQL on Supabase · Prisma · JWT auth · pnpm monorepo
 
 ---
 
@@ -107,25 +107,26 @@ Rules in `.claude/rules/` inject context automatically based on the file being e
 ## Project Structure
 
 ```
-src/                    # Application source code
-  app/                  # [e.g., Next.js App Router pages]
-  components/           # Shared UI components
-  lib/                  # Utilities, helpers, shared logic
+apps/
+  web/                  # Next.js App Router (Vercel)
+  api/                  # NestJS API (Railway)
+packages/               # Shared types, eslint config, etc. (as introduced)
+prisma/                 # Prisma schema & migrations (location TBD in monorepo — follow task #002)
 tests/
   e2e/                  # Playwright E2E tests (*.spec.ts)
 docs/
-  user/USER_GUIDE.md    # User-facing documentation
-  technical/            # Architecture, API, DB, decisions, design system (DESIGN_SYSTEM.md owned by @ui-ux-designer)
-  content/              # Content strategy, brand voice, keyword targets (owned by @copywriter-seo)
+  user/USER_GUIDE.md
+  technical/            # Architecture, API, DB, decisions, design system
+  content/              # N/A for v1 (app-only); file retained for template compatibility
 .claude/
-  agents/               # Specialist agent definitions
-  commands/             # Slash commands (/orchestrate, /review, /release, /checkpoint, /status, /start, /sync-template)
-  hooks/                # Lifecycle hook scripts (guard-destructive, format-on-write, validate-completion, log-agent)
-  rules/                # File-scoped rules (typescript, migrations, tests)
-  settings.json         # Hook configuration
-  templates/            # Blank doc templates (synced from upstream — do not edit)
-.mcp.json               # Project MCP server configuration (shared with team)
-.tasks/                 # Detailed task files — one per TODO item (owned by @project-manager)
+  agents/
+  commands/
+  hooks/
+  rules/
+  settings.json
+  templates/            # Upstream templates — do not edit
+.mcp.json
+.tasks/                 # Detailed task files — one per TODO item
 ```
 
 ---
@@ -141,13 +142,6 @@ docs/
 ```
 
 **Types**: `feat` · `fix` · `docs` · `style` · `refactor` · `test` · `chore` · `perf` · `ci`
-
-Examples:
-```
-feat(auth): add OAuth2 login with Google
-fix(api): handle null response from payment provider
-docs(user-guide): update onboarding section after flow change
-```
 
 ### Branch Naming
 ```
@@ -172,25 +166,22 @@ refactor/<description>
 
 ## Code Style
 
-> Fill in when project tooling is set up.
-
-- **Language**: TypeScript (strict mode)
-- **Formatter**: [Prettier — config in `.prettierrc`]
-- **Linter**: [ESLint — config in `.eslintrc`]
-- **Import style**: [absolute imports from `src/`]
-- **No `console.log`** in production code — use the project logger utility
+- **Language**: TypeScript (strict mode) in both `apps/web` and `apps/api`
+- **Formatter**: Prettier (root + package configs as added in task #001)
+- **Linter**: ESLint (Next.js + NestJS appropriate configs)
+- **Import style**: Prefer path aliases per package (`@/` etc.) once configured in each app
+- **No `console.log`** in production code — use the project logger utility once introduced
 - **No commented-out code** committed — delete it or track it in TODO.md
 
 ---
 
 ## Testing Conventions
 
-> Fill in when test infrastructure is set up.
-
-- **Unit tests**: [Vitest — colocated as `*.test.ts` next to source files]
-- **E2E tests**: [Playwright — in `tests/e2e/*.spec.ts`]
-- **Run unit**: `[npm test]`
-- **Run E2E**: `[npm run test:e2e]`
+- **Web unit tests**: Vitest — colocated or `*.test.ts` / `*.spec.ts` per `apps/web` config
+- **API unit tests**: Jest — NestJS default (`*.spec.ts` next to sources)
+- **E2E tests**: Playwright — in `tests/e2e/*.spec.ts`
+- **Run from repo root**: `pnpm test` (runs all workspaces); scoped: `pnpm --filter web test` / `pnpm --filter api test`
+- **Run E2E**: `pnpm run test:e2e` (after scripts exist)
 - **Coverage target**: 80% for new features
 - E2E tests use Page Object Model pattern and `data-testid` selectors
 
@@ -198,16 +189,16 @@ refactor/<description>
 
 ## Environment & Commands
 
-> Fill in when project is initialized.
+- **Node**: 20.x LTS (see `.nvmrc`)
+- **Package manager**: pnpm
+- `pnpm dev` — start all apps in dev (monorepo root)
+- `pnpm build` — production build for all packages/apps
+- `pnpm test` — unit tests (web: Vitest, api: Jest)
+- `pnpm run test:e2e` — E2E tests (once configured)
+- `pnpm run lint` — lint check (root orchestrates filters)
+- `pnpm run typecheck` — TypeScript check across workspaces
 
-- **Node**: [x.x.x] (see `.nvmrc`)
-- **Package manager**: [npm / pnpm / yarn]
-- `[npm run dev]` — start dev server
-- `[npm run build]` — production build
-- `[npm test]` — unit tests
-- `[npm run test:e2e]` — E2E tests
-- `[npm run lint]` — lint check
-- `[npm run typecheck]` — TypeScript check
+Scoped examples: `pnpm --filter web dev`, `pnpm --filter api dev`
 
 ---
 
