@@ -1,17 +1,28 @@
 ---
-id: "004"
-title: "Auth API: register, login, JWT, workspace guard"
-status: "todo"
-area: "backend"
-agent: "@backend-developer"
-priority: "high"
-created_at: "2026-04-12"
+id: '004'
+title: 'Auth API: register, login, JWT, workspace guard'
+status: 'todo'
+area: 'backend'
+agent: '@backend-developer'
+priority: 'high'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-001", "FR-002", "FR-003", "FR-004", "FR-010", "FR-011", "FR-012", "FR-013", "FR-014"]
-blocks: ["005", "006", "009", "011"]
-blocked_by: ["002", "003"]
+prd_refs:
+  [
+    'FR-001',
+    'FR-002',
+    'FR-003',
+    'FR-004',
+    'FR-010',
+    'FR-011',
+    'FR-012',
+    'FR-013',
+    'FR-014',
+  ]
+blocks: ['005', '006', '009', '011']
+blocked_by: ['002', '003']
 ---
 
 ## Description
@@ -35,6 +46,6 @@ Implement **email/password registration and login**, **password hashing**, **JWT
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

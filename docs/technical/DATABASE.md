@@ -35,9 +35,9 @@ _Detailed column tables will replace this section per migration in task #002+._
 
 ## Migrations Log
 
-| Migration | Date | Description |
-|-----------|------|-------------|
-| [TBD] | — | Initial schema |
+| Migration | Date | Description    |
+| --------- | ---- | -------------- |
+| [TBD]     | —    | Initial schema |
 
 ---
 
@@ -49,6 +49,6 @@ _Detailed column tables will replace this section per migration in task #002+._
 
 ## Known Issues & Tech Debt
 
-| Issue | Impact | Plan |
-|-------|--------|------|
+| Issue              | Impact         | Plan              |
+| ------------------ | -------------- | ----------------- |
 | Schema not created | Cannot run app | Execute task #002 |

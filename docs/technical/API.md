@@ -44,14 +44,14 @@ See future sections: `POST /v1/auth/register`, `POST /v1/auth/login` (names illu
 }
 ```
 
-| HTTP Status | Code | Meaning |
-|-------------|------|---------|
-| 400 | `VALIDATION_ERROR` | Invalid input |
-| 401 | `UNAUTHENTICATED` | Missing/invalid JWT |
-| 403 | `UNAUTHORIZED` | Not allowed for workspace/role |
-| 404 | `NOT_FOUND` | Unknown resource |
-| 409 | `CONFLICT` | State conflict / duplicate |
-| 429 | `RATE_LIMITED` | Throttled |
+| HTTP Status | Code               | Meaning                        |
+| ----------- | ------------------ | ------------------------------ |
+| 400         | `VALIDATION_ERROR` | Invalid input                  |
+| 401         | `UNAUTHENTICATED`  | Missing/invalid JWT            |
+| 403         | `UNAUTHORIZED`     | Not allowed for workspace/role |
+| 404         | `NOT_FOUND`        | Unknown resource               |
+| 409         | `CONFLICT`         | State conflict / duplicate     |
+| 429         | `RATE_LIMITED`     | Throttled                      |
 
 ---
 
@@ -69,6 +69,6 @@ _Endpoint sections from the template will be filled in as the Nest modules land.
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date       | Change                                     |
+| ---------- | ------------------------------------------ |
 | 2026-04-12 | Initial shell — stack and auth model noted |

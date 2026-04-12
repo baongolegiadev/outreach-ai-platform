@@ -19,6 +19,7 @@
 ## Related Issues
 
 <!-- Link to the issue/ticket this PR addresses -->
+
 Closes #
 
 ## Changes Made
@@ -44,8 +45,8 @@ Closes #
      For backend-only changes: delete this section. -->
 
 | Before | After |
-|--------|-------|
-| | |
+| ------ | ----- |
+|        |       |
 
 ## Database Changes
 

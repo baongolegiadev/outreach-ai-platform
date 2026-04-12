@@ -1,17 +1,17 @@
 ---
-id: "010"
-title: "Sequence builder UI and enrollment actions"
-status: "todo"
-area: "frontend"
-agent: "@frontend-developer"
-priority: "normal"
-created_at: "2026-04-12"
+id: '010'
+title: 'Sequence builder UI and enrollment actions'
+status: 'todo'
+area: 'frontend'
+agent: '@frontend-developer'
+priority: 'normal'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-030", "FR-031", "FR-032", "FR-033", "FR-034"]
+prd_refs: ['FR-030', 'FR-031', 'FR-032', 'FR-033', 'FR-034']
 blocks: []
-blocked_by: ["005", "009"]
+blocked_by: ['005', '009']
 ---
 
 ## Description
@@ -33,6 +33,6 @@ Provide UI to **create/edit sequences**, define **at least three steps** with de
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

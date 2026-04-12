@@ -15,20 +15,20 @@ Outreach AI Platform is an email-first outbound SaaS for **SDRs, sales teams, fo
 
 **Mandatory delegation — this is not optional.** Every task that falls within a specialist's domain MUST be routed to that agent. Do not implement code, design schemas, write docs, or configure pipelines yourself — delegate. Only handle directly: project-level questions, routing decisions, and tasks explicitly outside all specialist domains.
 
-| Agent | Role | Invoke when... |
-|-------|------|----------------|
-| `project-manager` | Backlog & coordination | "What's next?", sprint planning, breaking down features, reprioritizing |
-| `systems-architect` | Architecture & ADRs | New feature design, tech decisions, system integration |
-| `frontend-developer` | UI implementation | Components, pages, client-side state, styling |
-| `react-native-developer` | Mobile UI implementation | React Native screens, navigation, native modules, platform styling, mobile performance |
-| `backend-developer` | API & business logic | Endpoints, auth, background jobs, integrations |
-| `ui-ux-designer` | UX & design system | User flows, wireframes, component specs, accessibility |
-| `database-expert` | Schema & queries | Migrations, schema design, query optimization |
-| `qa-engineer` | Testing (Playwright) | E2E tests, test strategy, coverage gaps |
-| `documentation-writer` | Living docs | User guide updates, post-feature documentation |
-| `cicd-engineer` | CI/CD & GitHub Actions | Pipelines, deployments, branch protection, release automation |
-| `docker-expert` | Containerization | Dockerfiles, docker-compose, image optimization, container networking |
-| `copywriter-seo` | Copy & SEO | Landing page copy, marketing content, meta tags, keyword strategy, structured data specs, brand voice |
+| Agent                    | Role                     | Invoke when...                                                                                        |
+| ------------------------ | ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `project-manager`        | Backlog & coordination   | "What's next?", sprint planning, breaking down features, reprioritizing                               |
+| `systems-architect`      | Architecture & ADRs      | New feature design, tech decisions, system integration                                                |
+| `frontend-developer`     | UI implementation        | Components, pages, client-side state, styling                                                         |
+| `react-native-developer` | Mobile UI implementation | React Native screens, navigation, native modules, platform styling, mobile performance                |
+| `backend-developer`      | API & business logic     | Endpoints, auth, background jobs, integrations                                                        |
+| `ui-ux-designer`         | UX & design system       | User flows, wireframes, component specs, accessibility                                                |
+| `database-expert`        | Schema & queries         | Migrations, schema design, query optimization                                                         |
+| `qa-engineer`            | Testing (Playwright)     | E2E tests, test strategy, coverage gaps                                                               |
+| `documentation-writer`   | Living docs              | User guide updates, post-feature documentation                                                        |
+| `cicd-engineer`          | CI/CD & GitHub Actions   | Pipelines, deployments, branch protection, release automation                                         |
+| `docker-expert`          | Containerization         | Dockerfiles, docker-compose, image optimization, container networking                                 |
+| `copywriter-seo`         | Copy & SEO               | Landing page copy, marketing content, meta tags, keyword strategy, structured data specs, brand voice |
 
 ---
 
@@ -52,15 +52,15 @@ These apply to all agents at all times. No exceptions without explicit human ins
 
 Use these commands to trigger common multi-step workflows:
 
-| Command | What it does |
-|---------|--------------|
-| `/orchestrate <task>` | Full multi-agent task execution — decompose, plan, branch, execute in waves |
-| `/review [branch or file]` | Multi-agent code review: architectural drift + test coverage + implementation quality |
-| `/release [version]` | Pre-release quality pass — QA, docs, CI/CD check, gated release checklist |
-| `/checkpoint [description]` | Verify docs, run lint/tests, commit WIP before pausing |
-| `/status` | Render a live project health card (tasks, commits, open PRs, blockers) |
-| `/start` | Run project onboarding from `START_HERE.md` |
-| `/sync-template` | Pull latest agent definitions and templates from upstream |
+| Command                     | What it does                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------- |
+| `/orchestrate <task>`       | Full multi-agent task execution — decompose, plan, branch, execute in waves           |
+| `/review [branch or file]`  | Multi-agent code review: architectural drift + test coverage + implementation quality |
+| `/release [version]`        | Pre-release quality pass — QA, docs, CI/CD check, gated release checklist             |
+| `/checkpoint [description]` | Verify docs, run lint/tests, commit WIP before pausing                                |
+| `/status`                   | Render a live project health card (tasks, commits, open PRs, blockers)                |
+| `/start`                    | Run project onboarding from `START_HERE.md`                                           |
+| `/sync-template`            | Pull latest agent definitions and templates from upstream                             |
 
 ---
 
@@ -68,10 +68,10 @@ Use these commands to trigger common multi-step workflows:
 
 Project MCP servers are declared in `.mcp.json` (committed to the repo — shared by the whole team). No extra credentials required — both servers are unauthenticated.
 
-| Server | Purpose | Agents that use it |
-|--------|---------|-------------------|
-| `sequential-thinking` | Structured multi-step reasoning scratchpad | `systems-architect`, `project-manager` |
-| `context7` | Live, version-accurate library documentation | `frontend-developer`, `react-native-developer`, `backend-developer`, `database-expert`, `docker-expert` |
+| Server                | Purpose                                      | Agents that use it                                                                                      |
+| --------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `sequential-thinking` | Structured multi-step reasoning scratchpad   | `systems-architect`, `project-manager`                                                                  |
+| `context7`            | Live, version-accurate library documentation | `frontend-developer`, `react-native-developer`, `backend-developer`, `database-expert`, `docker-expert` |
 
 **GitHub integration** — use the `gh` CLI (already authenticated via `gh auth login`). All agents with `Bash` access can run `gh` commands directly. No token configuration needed.
 
@@ -81,12 +81,12 @@ Project MCP servers are declared in `.mcp.json` (committed to the repo — share
 
 Hooks in `.claude/settings.json` fire automatically and enforce conventions that are otherwise advisory:
 
-| Hook | Trigger | What it does |
-|------|---------|--------------|
-| `guard-destructive.sh` | Before any Bash call | Blocks `rm -rf`, `git push --force`, `DROP TABLE`, `npm publish`, and direct pushes to `main` |
-| `format-on-write.sh` | After any Write or Edit | Runs prettier/eslint (JS/TS), ruff/black (Python), gofmt (Go), or rustfmt on the changed file — no-ops if tooling not installed |
-| `validate-completion.sh` | When Claude finishes a turn | Warns if implementation files changed but `docs/` was not updated, or if `TODO.md` was not updated |
-| `log-agent.sh` | When a subagent starts | Appends a timestamped line to `.claude/agent-log.txt` for an audit trail |
+| Hook                     | Trigger                     | What it does                                                                                                                    |
+| ------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `guard-destructive.sh`   | Before any Bash call        | Blocks `rm -rf`, `git push --force`, `DROP TABLE`, `npm publish`, and direct pushes to `main`                                   |
+| `format-on-write.sh`     | After any Write or Edit     | Runs prettier/eslint (JS/TS), ruff/black (Python), gofmt (Go), or rustfmt on the changed file — no-ops if tooling not installed |
+| `validate-completion.sh` | When Claude finishes a turn | Warns if implementation files changed but `docs/` was not updated, or if `TODO.md` was not updated                              |
+| `log-agent.sh`           | When a subagent starts      | Appends a timestamped line to `.claude/agent-log.txt` for an audit trail                                                        |
 
 Hooks are non-interactive — they run silently unless they block an action or print a warning.
 
@@ -96,11 +96,11 @@ Hooks are non-interactive — they run silently unless they block an action or p
 
 Rules in `.claude/rules/` inject context automatically based on the file being edited:
 
-| Rule file | Applied to | Key standards |
-|-----------|-----------|---------------|
-| `typescript.md` | `*.ts`, `*.tsx` | No `any`, no `!` assertions, no `console.log`, explicit return types |
-| `migrations.md` | `*.sql`, `migrations/**` | Reversible migrations, naming convention, no destructive ops without guards |
-| `tests.md` | `*.spec.ts`, `*.test.ts`, `tests/**` | Page Object Model, `data-testid` selectors, no `test.only`, 80% coverage |
+| Rule file       | Applied to                           | Key standards                                                               |
+| --------------- | ------------------------------------ | --------------------------------------------------------------------------- |
+| `typescript.md` | `*.ts`, `*.tsx`                      | No `any`, no `!` assertions, no `console.log`, explicit return types        |
+| `migrations.md` | `*.sql`, `migrations/**`             | Reversible migrations, naming convention, no destructive ops without guards |
+| `tests.md`      | `*.spec.ts`, `*.test.ts`, `tests/**` | Page Object Model, `data-testid` selectors, no `test.only`, 80% coverage    |
 
 ---
 
@@ -134,6 +134,7 @@ docs/
 ## Git Conventions
 
 ### Commit Format
+
 ```
 <type>(<scope>): <short description>
 
@@ -144,6 +145,7 @@ docs/
 **Types**: `feat` · `fix` · `docs` · `style` · `refactor` · `test` · `chore` · `perf` · `ci`
 
 ### Branch Naming
+
 ```
 feature/<ticket-id>-short-description
 fix/<ticket-id>-short-description

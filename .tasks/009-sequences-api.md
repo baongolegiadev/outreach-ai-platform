@@ -1,17 +1,17 @@
 ---
-id: "009"
-title: "Sequences API: steps, delays, merge fields, enrollment"
-status: "todo"
-area: "backend"
-agent: "@backend-developer"
-priority: "normal"
-created_at: "2026-04-12"
+id: '009'
+title: 'Sequences API: steps, delays, merge fields, enrollment'
+status: 'todo'
+area: 'backend'
+agent: '@backend-developer'
+priority: 'normal'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-030", "FR-031", "FR-032", "FR-033", "FR-034"]
-blocks: ["010", "011"]
-blocked_by: ["004", "006"]
+prd_refs: ['FR-030', 'FR-031', 'FR-032', 'FR-033', 'FR-034']
+blocks: ['010', '011']
+blocked_by: ['004', '006']
 ---
 
 ## Description
@@ -34,6 +34,6 @@ Extend Prisma models and Nest modules for **sequences** (campaigns), **ordered s
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

@@ -1,17 +1,17 @@
 ---
-id: "015"
-title: "Pipeline Kanban board and stage API"
-status: "todo"
-area: "frontend"
-agent: "@frontend-developer"
-priority: "normal"
-created_at: "2026-04-12"
+id: '015'
+title: 'Pipeline Kanban board and stage API'
+status: 'todo'
+area: 'frontend'
+agent: '@frontend-developer'
+priority: 'normal'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-070", "FR-071", "FR-072", "FR-080"]
+prd_refs: ['FR-070', 'FR-071', 'FR-072', 'FR-080']
 blocks: []
-blocked_by: ["005", "006"]
+blocked_by: ['005', '006']
 ---
 
 ## Description
@@ -33,6 +33,6 @@ Implement **Kanban columns** for New, Contacted, Replied, Closed with **drag-and
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

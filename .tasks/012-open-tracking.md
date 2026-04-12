@@ -1,17 +1,17 @@
 ---
-id: "012"
-title: "Open tracking pipeline"
-status: "todo"
-area: "backend"
-agent: "@backend-developer"
-priority: "normal"
-created_at: "2026-04-12"
+id: '012'
+title: 'Open tracking pipeline'
+status: 'todo'
+area: 'backend'
+agent: '@backend-developer'
+priority: 'normal'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-061", "FR-080"]
-blocks: ["013", "014"]
-blocked_by: ["011"]
+prd_refs: ['FR-061', 'FR-080']
+blocks: ['013', '014']
+blocked_by: ['011']
 ---
 
 ## Description
@@ -32,6 +32,6 @@ Record **email opens** in a privacy-conscious, documented way (tracking pixel an
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

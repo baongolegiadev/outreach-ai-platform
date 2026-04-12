@@ -36,20 +36,20 @@ Key architectural choices: **clear separation** between web (Vercel) and API (Ra
 
 ## Tech Stack
 
-| Layer | Technology | Version | Why Chosen |
-|-------|-----------|---------|------------|
-| Frontend | Next.js (App Router) | 15.x [TBD pin] | SSR/RSC ecosystem, Vercel-native deploy |
-| Language | TypeScript | 5.x [TBD pin] | Shared typing across apps |
-| Backend | NestJS | 11.x [TBD pin] | Structured modules, DI, scalable APIs |
-| Database | PostgreSQL (Supabase) | 15+ [managed] | Relational integrity, JSON where needed |
-| ORM | Prisma | 6.x [TBD pin] | Migrations, type-safe queries |
-| Auth | JWT (API-issued) | — | Stateless API fits split deploy |
-| Hosting web | Vercel | — | Next.js operational fit |
-| Hosting API | Railway | — | Long-running Node + workers |
-| Package manager | pnpm | 9+ | Workspace filters, disk efficiency |
-| Unit tests (web) | Vitest | — | Fast DX for UI |
-| Unit tests (api) | Jest | — | Nest default |
-| CI/CD | GitHub Actions | — | [TBD — pipeline tasks] |
+| Layer            | Technology            | Version        | Why Chosen                              |
+| ---------------- | --------------------- | -------------- | --------------------------------------- |
+| Frontend         | Next.js (App Router)  | 15.x [TBD pin] | SSR/RSC ecosystem, Vercel-native deploy |
+| Language         | TypeScript            | 5.x [TBD pin]  | Shared typing across apps               |
+| Backend          | NestJS                | 11.x [TBD pin] | Structured modules, DI, scalable APIs   |
+| Database         | PostgreSQL (Supabase) | 15+ [managed]  | Relational integrity, JSON where needed |
+| ORM              | Prisma                | 6.x [TBD pin]  | Migrations, type-safe queries           |
+| Auth             | JWT (API-issued)      | —              | Stateless API fits split deploy         |
+| Hosting web      | Vercel                | —              | Next.js operational fit                 |
+| Hosting API      | Railway               | —              | Long-running Node + workers             |
+| Package manager  | pnpm                  | 9+             | Workspace filters, disk efficiency      |
+| Unit tests (web) | Vitest                | —              | Fast DX for UI                          |
+| Unit tests (api) | Jest                  | —              | Nest default                            |
+| CI/CD            | GitHub Actions        | —              | [TBD — pipeline tasks]                  |
 
 ---
 
@@ -75,22 +75,22 @@ NestJS modules align to domains: **auth**, **workspaces**, **leads**, **sequence
 
 **Middleware stack** (conceptual):
 
-1. Authentication — validate JWT on protected routes.  
-2. Workspace resolution — derive active workspace from header or path per ADR.  
-3. Validation — DTO pipes (class-validator / Zod [TBD]).  
+1. Authentication — validate JWT on protected routes.
+2. Workspace resolution — derive active workspace from header or path per ADR.
+3. Validation — DTO pipes (class-validator / Zod [TBD]).
 4. Exception filter — standard error envelope (see API.md).
 
 ---
 
 ### Infrastructure
 
-| Environment | URL | Branch | Notes |
-|-------------|-----|--------|-------|
-| Production (web) | `[TBD]` Vercel | `main` | Env: `NEXT_PUBLIC_API_URL` etc. |
-| Production (api) | `[TBD]` Railway | `main` | Secrets: DB, JWT, SMTP, Redis |
-| Database | Supabase project URL | n/a | `DATABASE_URL` only in server env |
-| Local web | `http://localhost:3000` | any | `pnpm --filter web dev` |
-| Local api | `http://localhost:3001` [port TBD] | any | `pnpm --filter api dev` |
+| Environment      | URL                     | Branch | Notes                             |
+| ---------------- | ----------------------- | ------ | --------------------------------- |
+| Production (web) | `[TBD]` Vercel          | `main` | Env: `NEXT_PUBLIC_API_URL` etc.   |
+| Production (api) | `[TBD]` Railway         | `main` | Secrets: DB, JWT, SMTP, Redis     |
+| Database         | Supabase project URL    | n/a    | `DATABASE_URL` only in server env |
+| Local web        | `http://localhost:3000` | any    | `pnpm --filter web dev`           |
+| Local api        | `http://localhost:3001` | any    | `pnpm --filter api dev`           |
 
 **CI/CD**: [TBD — describe pipelines when `.github/workflows` exist.]
 
@@ -100,16 +100,16 @@ NestJS modules align to domains: **auth**, **workspaces**, **leads**, **sequence
 
 ### Authentication (summary)
 
-1. User submits email/password to Nest auth endpoints.  
-2. API validates credentials against Prisma `User` records.  
-3. API issues **JWT**; client stores per product security choice (httpOnly cookie preferred — decide in tasks).  
+1. User submits email/password to Nest auth endpoints.
+2. API validates credentials against Prisma `User` records.
+3. API issues **JWT**; client stores per product security choice (httpOnly cookie preferred — decide in tasks).
 4. Subsequent requests include JWT; Nest guards enforce workspace authorization.
 
 ### Outbound send (summary)
 
-1. Client requests enqueue/enroll send job.  
-2. API persists outbox/job row and pushes to queue.  
-3. Worker sends via SMTP/Gmail, records result, retries on transient failure.  
+1. Client requests enqueue/enroll send job.
+2. API persists outbox/job row and pushes to queue.
+3. Worker sends via SMTP/Gmail, records result, retries on transient failure.
 4. Activity + analytics updated from worker events.
 
 Detailed diagrams belong here as implementation lands.
@@ -136,14 +136,14 @@ Canonical **design system** lives in [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) (@
 
 ## Performance Considerations
 
-- Pagination and indexes on foreign keys for lead and enrollment tables (see `DATABASE.md` as schema evolves).  
+- Pagination and indexes on foreign keys for lead and enrollment tables (see `DATABASE.md` as schema evolves).
 - Aggregate analytics via SQL or materialized rollups [TBD] to keep dashboards fast at 10k–100k leads.
 
 ---
 
 ## Known Constraints and Technical Debt
 
-| Item | Impact | Plan |
-|------|--------|------|
+| Item                               | Impact                 | Plan                        |
+| ---------------------------------- | ---------------------- | --------------------------- |
 | Reply detection approach undecided | Blocks full FR-050–052 | Resolve in ADR + spike task |
-| Queue broker not pinned | Worker reliability | ADR + infra task |
+| Queue broker not pinned            | Worker reliability     | ADR + infra task            |

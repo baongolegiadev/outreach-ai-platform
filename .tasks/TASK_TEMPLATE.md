@@ -1,17 +1,17 @@
 ---
-id: "NNN"
-title: "Short task title matching TODO.md entry"
-status: "todo"          # todo | in_progress | completed | blocked
-area: "backend"         # frontend | backend | database | qa | docs | infra | design | setup
-agent: "@backend-developer"
-priority: "normal"      # high | normal | low
-created_at: "YYYY-MM-DD"
-due_date: null          # "YYYY-MM-DD" or null
-started_at: null        # set when status changes to in_progress
-completed_at: null      # set when status changes to completed
-prd_refs: []            # e.g. ["FR-001", "FR-002"]
-blocks: []              # task IDs this task blocks, e.g. ["005", "006"]
-blocked_by: []          # task IDs that must complete before this one
+id: 'NNN'
+title: 'Short task title matching TODO.md entry'
+status: 'todo' # todo | in_progress | completed | blocked
+area: 'backend' # frontend | backend | database | qa | docs | infra | design | setup
+agent: '@backend-developer'
+priority: 'normal' # high | normal | low
+created_at: 'YYYY-MM-DD'
+due_date: null # "YYYY-MM-DD" or null
+started_at: null # set when status changes to in_progress
+completed_at: null # set when status changes to completed
+prd_refs: [] # e.g. ["FR-001", "FR-002"]
+blocks: [] # task IDs this task blocks, e.g. ["005", "006"]
+blocked_by: [] # task IDs that must complete before this one
 ---
 
 ## Description
@@ -31,6 +31,6 @@ blocked_by: []          # task IDs that must complete before this one
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| YYYY-MM-DD | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| YYYY-MM-DD | human         | Task created |

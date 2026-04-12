@@ -1,17 +1,28 @@
 ---
-id: "002"
-title: "Prisma schema: users, workspaces, memberships, leads, tags"
-status: "todo"
-area: "database"
-agent: "@database-expert"
-priority: "high"
-created_at: "2026-04-12"
+id: '002'
+title: 'Prisma schema: users, workspaces, memberships, leads, tags'
+status: 'todo'
+area: 'database'
+agent: '@database-expert'
+priority: 'high'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-010", "FR-011", "FR-012", "FR-013", "FR-014", "FR-020", "FR-021", "FR-023", "FR-024"]
-blocks: ["003", "004", "006"]
-blocked_by: ["001"]
+prd_refs:
+  [
+    'FR-010',
+    'FR-011',
+    'FR-012',
+    'FR-013',
+    'FR-014',
+    'FR-020',
+    'FR-021',
+    'FR-023',
+    'FR-024',
+  ]
+blocks: ['003', '004', '006']
+blocked_by: ['001']
 ---
 
 ## Description
@@ -34,6 +45,6 @@ Introduce **Prisma** with an initial relational schema supporting **multi-tenant
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

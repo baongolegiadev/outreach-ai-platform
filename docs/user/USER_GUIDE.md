@@ -16,16 +16,16 @@ End-user documentation will expand as features ship (see `TODO.md`). Until the a
 
 ### Creating an Account
 
-1. Open the web app URL for your environment.  
-2. Choose **Sign up** and complete registration.  
+1. Open the web app URL for your environment.
+2. Choose **Sign up** and complete registration.
 3. Sign in and select or create a **workspace**.
 
 _Full screenshots and field-level copy: [TBD after UI tasks]._
 
 ### Logging In
 
-1. Open the web app URL.  
-2. Enter email and password.  
+1. Open the web app URL.
+2. Enter email and password.
 3. Choose **Log in**.
 
 ---
@@ -59,8 +59,8 @@ How to drag leads between **New**, **Contacted**, **Replied**, **Closed** — [T
 ## Troubleshooting
 
 | Message | Meaning | What to Do |
-|---------|---------|------------|
-| [TBD] | | |
+| ------- | ------- | ---------- |
+| [TBD]   |         |            |
 
 ---
 

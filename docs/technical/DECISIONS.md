@@ -12,8 +12,8 @@ Read by: All agents before proposing stack changes.
 
 ## Decision Index
 
-| ID | Title | Status | Date |
-|----|-------|--------|------|
+| ID      | Title                                                                       | Status   | Date       |
+| ------- | --------------------------------------------------------------------------- | -------- | ---------- |
 | ADR-001 | Initial platform stack (Next.js, NestJS, PostgreSQL/Supabase, Prisma, pnpm) | Accepted | 2026-04-12 |
 
 ---
@@ -30,8 +30,8 @@ We are building an **email-first outbound SaaS** with lead management, sequences
 
 ### Options Considered
 
-1. **Full-stack Next.js only** (API routes + server actions): simpler deploy surface; weaker fit for long-running workers and explicit modular domains at scale.  
-2. **NestJS + separate React (Vite) SPA**: maximum decoupling; more bespoke SSR/SEO work than needed for an **app-only** v1.  
+1. **Full-stack Next.js only** (API routes + server actions): simpler deploy surface; weaker fit for long-running workers and explicit modular domains at scale.
+2. **NestJS + separate React (Vite) SPA**: maximum decoupling; more bespoke SSR/SEO work than needed for an **app-only** v1.
 3. **Next.js (App Router) + NestJS API + Prisma + Supabase Postgres**: clear separation of **web** and **API/workers**, strong TypeScript ergonomics, Prisma migrations for relational outbound domain, Supabase for managed Postgres.
 
 ### Decision
@@ -40,8 +40,8 @@ Adopt **Next.js (App Router, TypeScript)** for the web app, **NestJS (TypeScript
 
 ### Consequences
 
-- **Positive**: Clean boundaries for async mail workers; Nest modules map well to bounded contexts; Prisma aids safe schema iteration; hosting matches each runtime’s strengths.  
-- **Negative**: Two deployables and CORS/auth cookie details to manage; more initial scaffolding than a monolithic Next app.  
+- **Positive**: Clean boundaries for async mail workers; Nest modules map well to bounded contexts; Prisma aids safe schema iteration; hosting matches each runtime’s strengths.
+- **Negative**: Two deployables and CORS/auth cookie details to manage; more initial scaffolding than a monolithic Next app.
 - **Neutral**: Open choices (queue broker, reply ingestion) remain in PRD open questions and future ADRs.
 
 ---

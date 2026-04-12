@@ -17,40 +17,21 @@ When the user says **"START!"**, execute this onboarding sequence in full. Do no
 Ask the user questions in conversational groups — 3 to 4 at a time. Wait for answers before continuing to the next group. Do not present all questions at once.
 
 **Group 1 — Project basics:**
+
 1. What is the name of this project?
 2. What does it do in one sentence?
 3. Who are the primary users? (e.g., "small business owners", "internal ops team", "developers")
 4. What problem does it solve — what are users doing today without it?
 
-**Group 2 — Tech stack:**
-5. What is the frontend technology? (e.g., Next.js, React + Vite, Vue, none)
-6. What is the backend? (e.g., Next.js API routes, Express, FastAPI, Django)
-7. What database? (e.g., PostgreSQL, MySQL, SQLite, MongoDB)
-8. What ORM or query layer? (e.g., Prisma, Drizzle, SQLAlchemy, raw SQL)
-9. What is the hosting/deployment target? (e.g., Railway, Vercel, Fly.io, AWS)
-10. What package manager? (npm / pnpm / yarn)
-11. What Node version, if applicable? (check `.nvmrc` if it exists)
+**Group 2 — Tech stack:** 5. What is the frontend technology? (e.g., Next.js, React + Vite, Vue, none) 6. What is the backend? (e.g., Next.js API routes, Express, FastAPI, Django) 7. What database? (e.g., PostgreSQL, MySQL, SQLite, MongoDB) 8. What ORM or query layer? (e.g., Prisma, Drizzle, SQLAlchemy, raw SQL) 9. What is the hosting/deployment target? (e.g., Railway, Vercel, Fly.io, AWS) 10. What package manager? (npm / pnpm / yarn) 11. What Node version, if applicable? (check `.nvmrc` if it exists)
 
-**Group 3 — Conventions:**
-12. What formatter and linter? (e.g., Prettier + ESLint, Biome)
-13. What test runner for unit tests? (e.g., Vitest, Jest)
-14. What are the dev / build / test commands? (e.g., `npm run dev`, `npm run build`, `npm test`)
+**Group 3 — Conventions:** 12. What formatter and linter? (e.g., Prettier + ESLint, Biome) 13. What test runner for unit tests? (e.g., Vitest, Jest) 14. What are the dev / build / test commands? (e.g., `npm run dev`, `npm run build`, `npm test`)
 
-**Group 4 — Product requirements:**
-15. What are the main features this product must have in v1? List them — you'll turn these into FR-XXX requirements in the PRD.
-16. Are there any non-functional requirements? (e.g., performance targets, accessibility level, browser support)
-17. What is explicitly out of scope for v1? (important for keeping the backlog focused)
-18. Who is the product owner / decision maker?
+**Group 4 — Product requirements:** 15. What are the main features this product must have in v1? List them — you'll turn these into FR-XXX requirements in the PRD. 16. Are there any non-functional requirements? (e.g., performance targets, accessibility level, browser support) 17. What is explicitly out of scope for v1? (important for keeping the backlog focused) 18. Who is the product owner / decision maker?
 
-**Group 5 — Content & SEO (skip if this is an internal tool with no public-facing pages):**
-19. Does the product have a public-facing website, landing pages, or marketing content?
-20. Do you have a defined brand voice or tone? (e.g., "professional and direct", "friendly and conversational") Any written examples or a style guide?
-21. Are there SEO goals? (e.g., organic traffic targets, specific keywords you want to rank for, competitor pages you want to outrank)
-22. Do you already have copy for any pages, or are all pages starting from scratch?
+**Group 5 — Content & SEO (skip if this is an internal tool with no public-facing pages):** 19. Does the product have a public-facing website, landing pages, or marketing content? 20. Do you have a defined brand voice or tone? (e.g., "professional and direct", "friendly and conversational") Any written examples or a style guide? 21. Are there SEO goals? (e.g., organic traffic targets, specific keywords you want to rank for, competitor pages you want to outrank) 22. Do you already have copy for any pages, or are all pages starting from scratch?
 
-**Group 6 — Goals and open questions:**
-23. What does success look like? Any specific metrics? (e.g., "100 users in first month", "onboarding under 5 minutes")
-24. Are there any open decisions not yet made? (e.g., auth provider, payment processor, third-party integrations)
+**Group 6 — Goals and open questions:** 23. What does success look like? Any specific metrics? (e.g., "100 users in first month", "onboarding under 5 minutes") 24. Are there any open decisions not yet made? (e.g., auth provider, payment processor, third-party integrations)
 
 ---
 
@@ -87,7 +68,7 @@ Using the answers collected in Phase 1, update the following files in order. Rep
 - Environment commands: dev, build, test, lint, typecheck
 - Stack line in the header
 
-**2.2 — `README.md`** *(copied from `.claude/templates/README.template.md` in step 2.0)*
+**2.2 — `README.md`** _(copied from `.claude/templates/README.template.md` in step 2.0)_
 
 - Project name and one-sentence description
 - Overview paragraphs (what it does, who it's for, why it exists)
@@ -120,6 +101,7 @@ Using the answers collected in Phase 1, update the following files in order. Rep
 **2.5 — `docs/technical/DECISIONS.md`**
 
 Fill in ADR-001 with the initial tech stack decision:
+
 - Context: the project type, team size/familiarity, deployment constraints
 - Options considered: list 2–3 realistic alternatives that were evaluated (or could have been)
 - Decision: the chosen stack and the primary reason
@@ -127,9 +109,10 @@ Fill in ADR-001 with the initial tech stack decision:
 
 Update the Decision Index table with the ADR-001 row.
 
-**2.6 — `docs/content/CONTENT_STRATEGY.md`** *(skip if the project has no public-facing pages — mark file as `[N/A — internal tool]` in that case)*
+**2.6 — `docs/content/CONTENT_STRATEGY.md`** _(skip if the project has no public-facing pages — mark file as `[N/A — internal tool]` in that case)_
 
 Using the answers from Group 5:
+
 - Overview and primary value proposition: the one sentence that all copy must reinforce
 - Brand Voice table: fill in the four voice dimensions (formality, energy, personality, authority) based on the tone the user described; if no tone was defined, leave as `[TBD — define with @copywriter-seo]`
 - Tone-by-context matrix: fill in the marketing headline and error message rows at minimum; leave others as `[TBD]`
@@ -169,15 +152,18 @@ Read through the functional requirements in `PRD.md` and break them down into co
 For each task:
 
 **Step A — Add to `TODO.md`** using this format:
+
 ```
 - [ ] #NNN — Clear, outcome-focused description [area: tag] → [.tasks/NNN-short-title.md](.tasks/NNN-short-title.md)
 ```
 
 Place it in the correct section:
+
 - **Up Next**: the first 3–5 tasks that are ready to start immediately, ordered by dependency and priority
 - **Backlog**: everything else, roughly ordered by when it will be needed
 
 **Step B — Create `.tasks/NNN-short-title.md`** by copying `.tasks/TASK_TEMPLATE.md`:
+
 - Rename the file to match the task number and a short kebab-case title (e.g., `003-user-auth-schema.md`)
 - Fill in all frontmatter fields:
   - `id`, `title`, `status: "todo"`, `area`, `agent` (the specialist agent that will do this work)
@@ -255,6 +241,7 @@ Do not delete this file before the user says they're happy. "Looks good" or "yes
 Use this to verify everything is done before asking for confirmation in Phase 4.
 
 **Documentation**
+
 - [ ] Templates copied from `.claude/templates/` to `docs/` and `README.md` (step 2.0)
 - [ ] `CLAUDE.md` — all placeholders replaced, no `[square brackets]` remaining (or explicitly marked `[TBD]`)
 - [ ] `README.md` — all placeholders replaced (copied from `.claude/templates/README.md`)
@@ -265,6 +252,7 @@ Use this to verify everything is done before asking for confirmation in Phase 4.
 - [ ] `docs/content/CONTENT_STRATEGY.md` — brand voice and personas filled in (or marked `[N/A]` if internal tool with no public-facing pages)
 
 **Backlog**
+
 - [ ] `TODO.md` contains only real tasks — no placeholder `#001`–`#008` entries remain
 - [ ] Every TODO item has a corresponding `.tasks/NNN-*.md` file
 - [ ] Every `.tasks/NNN-*.md` file has: description, acceptance criteria, `prd_refs`, `agent`, `created_at`
@@ -273,6 +261,7 @@ Use this to verify everything is done before asking for confirmation in Phase 4.
 - [ ] Task #000 remains in Completed
 
 **Sign-off**
+
 - [ ] Summary presented to user (Phase 4)
 - [ ] User confirmed satisfaction
 - [ ] This file deleted

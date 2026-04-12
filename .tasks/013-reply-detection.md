@@ -1,17 +1,17 @@
 ---
-id: "013"
-title: "Reply detection, stop enrollment, reply status"
-status: "todo"
-area: "backend"
-agent: "@backend-developer"
-priority: "normal"
-created_at: "2026-04-12"
+id: '013'
+title: 'Reply detection, stop enrollment, reply status'
+status: 'todo'
+area: 'backend'
+agent: '@backend-developer'
+priority: 'normal'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-050", "FR-051", "FR-052", "FR-080"]
-blocks: ["014"]
-blocked_by: ["011"]
+prd_refs: ['FR-050', 'FR-051', 'FR-052', 'FR-080']
+blocks: ['014']
+blocked_by: ['011']
 ---
 
 ## Description
@@ -33,6 +33,6 @@ Implement **inbound reply detection** per the approach chosen from PRD open ques
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

@@ -1,17 +1,17 @@
 ---
-id: "005"
-title: "Next.js app shell: auth screens and API client"
-status: "todo"
-area: "frontend"
-agent: "@frontend-developer"
-priority: "high"
-created_at: "2026-04-12"
+id: '005'
+title: 'Next.js app shell: auth screens and API client'
+status: 'todo'
+area: 'frontend'
+agent: '@frontend-developer'
+priority: 'high'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-001", "FR-002", "FR-003"]
-blocks: ["007", "010", "014", "015", "017"]
-blocked_by: ["001", "004"]
+prd_refs: ['FR-001', 'FR-002', 'FR-003']
+blocks: ['007', '010', '014', '015', '017']
+blocked_by: ['001', '004']
 ---
 
 ## Description
@@ -33,6 +33,6 @@ Implement the **authenticated app shell** in `apps/web`: routing layout, **sign 
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

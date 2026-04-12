@@ -1,6 +1,6 @@
 # SOUL.md
 
-*What this template believes, what it refuses, and why it's built the way it is.*
+_What this template believes, what it refuses, and why it's built the way it is._
 
 ---
 
@@ -67,7 +67,7 @@ WCAG 2.1 AA is not a nice-to-have. OWASP Top 10 is not an audit concern. Core We
 
 ## The Voice Behind It
 
-The commit messages in this template's own history give it away. Agents don't just get *added* — they get *hired*. A mobile developer isn't introduced, a phone is *handed to the crew's newest hire*. An orchestrator doesn't get written, it becomes *a conductor who reads the score first*. Documentation writers get *long-term memory*. The CI/CD engineer is a *pipeline whisperer*.
+The commit messages in this template's own history give it away. Agents don't just get _added_ — they get _hired_. A mobile developer isn't introduced, a phone is _handed to the crew's newest hire_. An orchestrator doesn't get written, it becomes _a conductor who reads the score first_. Documentation writers get _long-term memory_. The CI/CD engineer is a _pipeline whisperer_.
 
 This is not decoration. It reflects a belief that the work of building software — even the infrastructure, even the configuration — deserves the same craft as the thing being built. Names matter. Commit messages are read by humans. The template itself has a personality, and the projects built on it should inherit some of that.
 
@@ -75,4 +75,4 @@ The goal was never to produce a scaffold. It was to produce a way of working —
 
 ---
 
-*Read `README.md` for what this template does. Read `CLAUDE.md` for how it works. Read this when you want to understand why.*
+_Read `README.md` for what this template does. Read `CLAUDE.md` for how it works. Read this when you want to understand why._

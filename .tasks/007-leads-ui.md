@@ -1,17 +1,17 @@
 ---
-id: "007"
-title: "Leads UI: table, detail, tags, filters"
-status: "todo"
-area: "frontend"
-agent: "@frontend-developer"
-priority: "normal"
-created_at: "2026-04-12"
+id: '007'
+title: 'Leads UI: table, detail, tags, filters'
+status: 'todo'
+area: 'frontend'
+agent: '@frontend-developer'
+priority: 'normal'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-020", "FR-023", "FR-024"]
-blocks: ["015"]
-blocked_by: ["005", "006"]
+prd_refs: ['FR-020', 'FR-023', 'FR-024']
+blocks: ['015']
+blocked_by: ['005', '006']
 ---
 
 ## Description
@@ -33,6 +33,6 @@ Build the **Leads** experience: sortable/filterable **table** with pagination, *
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

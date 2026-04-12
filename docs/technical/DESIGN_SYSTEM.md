@@ -15,37 +15,37 @@ Canonical design language, component inventory, interaction patterns, and summar
 
 ## Key user flows
 
-| Flow | Goal | Primary entry | Notes |
-|------|------|---------------|-------|
-| Sign up / log in | Access a workspace | `/login`, `/register` [routes TBD] | FR-001–FR-004 |
-| Import & manage leads | Populate pipeline inputs | Leads section | FR-020–FR-024 |
-| Build & launch sequence | Automate multi-step email | Sequences section | FR-030–FR-034 |
-| Review analytics | Understand performance | Dashboard | FR-060–FR-064 |
-| Move lead on Kanban | Reflect deal state | Pipeline board | FR-070–FR-072 |
+| Flow                    | Goal                      | Primary entry                      | Notes         |
+| ----------------------- | ------------------------- | ---------------------------------- | ------------- |
+| Sign up / log in        | Access a workspace        | `/login`, `/register` [routes TBD] | FR-001–FR-004 |
+| Import & manage leads   | Populate pipeline inputs  | Leads section                      | FR-020–FR-024 |
+| Build & launch sequence | Automate multi-step email | Sequences section                  | FR-030–FR-034 |
+| Review analytics        | Understand performance    | Dashboard                          | FR-060–FR-064 |
+| Move lead on Kanban     | Reflect deal state        | Pipeline board                     | FR-070–FR-072 |
 
 ---
 
 ## Color tokens
 
-| Token | Value | Usage |
-|-------|-------|-------|
+| Token               | Value | Usage                  |
+| ------------------- | ----- | ---------------------- |
 | `color-primary-500` | [TBD] | Primary actions, links |
-| `color-primary-600` | [TBD] | Primary hover |
-| `color-neutral-100` | [TBD] | Surfaces |
-| `color-neutral-900` | [TBD] | Body text |
-| `color-error-500` | [TBD] | Errors |
-| `color-success-500` | [TBD] | Success |
+| `color-primary-600` | [TBD] | Primary hover          |
+| `color-neutral-100` | [TBD] | Surfaces               |
+| `color-neutral-900` | [TBD] | Body text              |
+| `color-error-500`   | [TBD] | Errors                 |
+| `color-success-500` | [TBD] | Success                |
 
 ---
 
 ## Typography scale
 
-| Token | Size | Weight | Usage |
-|-------|------|--------|-------|
-| `text-heading-1` | [TBD] | [TBD] | Page headings |
-| `text-heading-2` | [TBD] | [TBD] | Section headings |
-| `text-body` | [TBD] | [TBD] | Body |
-| `text-small` | [TBD] | [TBD] | Labels |
+| Token            | Size  | Weight | Usage            |
+| ---------------- | ----- | ------ | ---------------- |
+| `text-heading-1` | [TBD] | [TBD]  | Page headings    |
+| `text-heading-2` | [TBD] | [TBD]  | Section headings |
+| `text-body`      | [TBD] | [TBD]  | Body             |
+| `text-small`     | [TBD] | [TBD]  | Labels           |
 
 ---
 
@@ -63,17 +63,17 @@ v1 is **app-only**; marketing imagery is **[TBD]** if future public pages ship. 
 
 ## Component inventory
 
-| Component | Location | Status | Notes |
-|-----------|----------|--------|-------|
-| Button | [TBD] | Draft | |
-| Input | [TBD] | Draft | |
-| Data table | [TBD] | Draft | Leads |
+| Component  | Location | Status | Notes |
+| ---------- | -------- | ------ | ----- |
+| Button     | [TBD]    | Draft  |       |
+| Input      | [TBD]    | Draft  |       |
+| Data table | [TBD]    | Draft  | Leads |
 
 ---
 
 ## Interaction patterns
 
-- **Loading states**: [TBD]  
-- **Error states**: [TBD]  
-- **Empty states**: [TBD]  
+- **Loading states**: [TBD]
+- **Error states**: [TBD]
+- **Empty states**: [TBD]
 - **Confirmations**: [TBD] destructive actions require confirmation

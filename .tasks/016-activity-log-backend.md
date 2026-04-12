@@ -1,17 +1,17 @@
 ---
-id: "016"
-title: "Activity log: event model, emission hooks, query API"
-status: "todo"
-area: "backend"
-agent: "@backend-developer"
-priority: "normal"
-created_at: "2026-04-12"
+id: '016'
+title: 'Activity log: event model, emission hooks, query API'
+status: 'todo'
+area: 'backend'
+agent: '@backend-developer'
+priority: 'normal'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-080", "FR-081"]
-blocks: ["017"]
-blocked_by: ["011"]
+prd_refs: ['FR-080', 'FR-081']
+blocks: ['017']
+blocked_by: ['011']
 ---
 
 ## Description
@@ -32,6 +32,6 @@ Create an **append-only activity event** model capturing at minimum: **email sen
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

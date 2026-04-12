@@ -1,17 +1,17 @@
 ---
-id: "003"
-title: "NestJS foundations (Prisma module, config, health, errors)"
-status: "todo"
-area: "backend"
-agent: "@backend-developer"
-priority: "high"
-created_at: "2026-04-12"
+id: '003'
+title: 'NestJS foundations (Prisma module, config, health, errors)'
+status: 'todo'
+area: 'backend'
+agent: '@backend-developer'
+priority: 'high'
+created_at: '2026-04-12'
 due_date: null
 started_at: null
 completed_at: null
-prd_refs: ["FR-004"]
-blocks: ["004", "006"]
-blocked_by: ["001", "002"]
+prd_refs: ['FR-004']
+blocks: ['004', '006']
+blocked_by: ['001', '002']
 ---
 
 ## Description
@@ -34,6 +34,6 @@ Bootstrap the **NestJS** service in `apps/api` with **configuration module** (va
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created |
+| Date       | Agent / Human | Event        |
+| ---------- | ------------- | ------------ |
+| 2026-04-12 | human         | Task created |

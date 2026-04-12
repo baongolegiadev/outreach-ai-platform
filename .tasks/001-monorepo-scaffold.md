@@ -1,16 +1,16 @@
 ---
-id: "001"
-title: "Scaffold pnpm monorepo (Next.js web + NestJS api)"
-status: "todo"
-area: "setup"
-agent: "@systems-architect"
-priority: "high"
-created_at: "2026-04-12"
+id: '001'
+title: 'Scaffold pnpm monorepo (Next.js web + NestJS api)'
+status: 'completed'
+area: 'setup'
+agent: '@systems-architect'
+priority: 'high'
+created_at: '2026-04-12'
 due_date: null
-started_at: null
-completed_at: null
+started_at: '2026-04-12'
+completed_at: '2026-04-12'
 prd_refs: []
-blocks: ["002", "003", "005"]
+blocks: ['002', '003', '005']
 blocked_by: []
 ---
 
@@ -20,14 +20,14 @@ Create the **pnpm workspace** layout with `apps/web` (Next.js App Router + TypeS
 
 ## Acceptance Criteria
 
-- [ ] `pnpm-workspace.yaml` includes `apps/*` (and `packages/*` if introduced).
-- [ ] `pnpm dev` runs web + api concurrently (or documented parallel terminals if tooling defers aggregate runner).
-- [ ] `pnpm build` builds both apps without errors.
-- [ ] `pnpm test` executes Vitest (web) and Jest (api) smoke tests.
-- [ ] `pnpm run lint` and `pnpm run typecheck` exist at root and pass on clean tree.
-- [ ] `.env.example` stubs `DATABASE_URL`, `JWT_SECRET`, `WEB_ORIGIN`, `API_PUBLIC_URL` (no secrets).
-- [ ] `README.md` commands match actual scripts.
-- [ ] Relevant documentation updated (`ARCHITECTURE.md` ports/paths if finalized).
+- [x] `pnpm-workspace.yaml` includes `apps/*` (and `packages/*` if introduced).
+- [x] `pnpm dev` runs web + api concurrently (or documented parallel terminals if tooling defers aggregate runner).
+- [x] `pnpm build` builds both apps without errors.
+- [x] `pnpm test` executes Vitest (web) and Jest (api) smoke tests.
+- [x] `pnpm run lint` and `pnpm run typecheck` exist at root and pass on clean tree.
+- [x] `.env.example` stubs `DATABASE_URL`, `JWT_SECRET`, `WEB_ORIGIN`, `API_PUBLIC_URL` (no secrets).
+- [x] `README.md` commands match actual scripts.
+- [x] Relevant documentation updated (`ARCHITECTURE.md` ports/paths if finalized).
 
 ## Technical Notes
 
@@ -36,6 +36,7 @@ Create the **pnpm workspace** layout with `apps/web` (Next.js App Router + TypeS
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-04-12 | human | Task created (onboarding backlog) |
+| Date       | Agent / Human | Event                              |
+| ---------- | ------------- | ---------------------------------- |
+| 2026-04-12 | human         | Task created (onboarding backlog)  |
+| 2026-04-12 | agent         | Monorepo scaffold completed (#001) |

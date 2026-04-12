@@ -1,14 +1,14 @@
 ---
-id: "000"
-title: "Initial project setup and template configuration"
-status: "completed"
-area: "setup"
-agent: "human"
-priority: "high"
-created_at: "2026-03-25"
+id: '000'
+title: 'Initial project setup and template configuration'
+status: 'completed'
+area: 'setup'
+agent: 'human'
+priority: 'high'
+created_at: '2026-03-25'
 due_date: null
-started_at: "2026-03-25"
-completed_at: "2026-03-25"
+started_at: '2026-03-25'
+completed_at: '2026-03-25'
 prd_refs: []
 blocks: []
 blocked_by: []
@@ -33,7 +33,7 @@ Template sourced from the Kontekst development template repository.
 
 ## History
 
-| Date | Agent / Human | Event |
-|------|--------------|-------|
-| 2026-03-25 | human | Task created |
-| 2026-03-25 | human | Task completed — template scaffold generated |
+| Date       | Agent / Human | Event                                        |
+| ---------- | ------------- | -------------------------------------------- |
+| 2026-03-25 | human         | Task created                                 |
+| 2026-03-25 | human         | Task completed — template scaffold generated |

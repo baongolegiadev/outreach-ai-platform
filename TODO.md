@@ -11,7 +11,6 @@
 
 ## Up Next (prioritized)
 
-- [ ] #001 — Scaffold pnpm monorepo (apps/web Next.js, apps/api NestJS, shared tooling, root scripts) [area: setup] → [.tasks/001-monorepo-scaffold.md](.tasks/001-monorepo-scaffold.md)
 - [ ] #002 — Prisma schema: users, workspaces, memberships, RBAC, leads, tags [area: database] → [.tasks/002-prisma-core-schema.md](.tasks/002-prisma-core-schema.md)
 - [ ] #003 — NestJS foundations (config, Prisma module, health, validation, error shape) [area: backend] → [.tasks/003-nest-foundations.md](.tasks/003-nest-foundations.md)
 - [ ] #004 — Auth API: register, login, JWT, logout; workspace context guard [area: backend] → [.tasks/004-auth-api-jwt.md](.tasks/004-auth-api-jwt.md)
@@ -38,6 +37,7 @@
 
 ## Completed
 
+- [x] #001 — Scaffold pnpm monorepo (apps/web Next.js, apps/api NestJS, shared tooling, root scripts) [area: setup] → [.tasks/001-monorepo-scaffold.md](.tasks/001-monorepo-scaffold.md)
 - [x] #000 — Initial project setup and template configuration → [.tasks/000-initial-project-setup.md](.tasks/000-initial-project-setup.md)
 
 ---
