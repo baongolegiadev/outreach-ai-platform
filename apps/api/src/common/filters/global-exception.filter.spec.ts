@@ -1,14 +1,14 @@
 import { ArgumentsHost, BadRequestException, HttpStatus } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
 import { GlobalExceptionFilter } from './global-exception.filter';
 
 describe('GlobalExceptionFilter', () => {
   const filter = new GlobalExceptionFilter();
+  type ErrorPayload = { error: { code: string } };
 
   const createHost = () => {
-    const statusMock = jest.fn().mockReturnThis();
-    const jsonMock = jest.fn();
+    const statusMock = jest.fn().mockReturnThis() as jest.MockedFunction<(code: number) => Response>;
+    const jsonMock = jest.fn() as jest.MockedFunction<(payload: ErrorPayload) => Response>;
     const response = {
       status: statusMock,
       json: jsonMock,
@@ -33,32 +33,21 @@ describe('GlobalExceptionFilter', () => {
     filter.catch(new BadRequestException('invalid payload'), host);
 
     expect(statusMock).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
-    expect(jsonMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        error: expect.objectContaining({
-          code: 'VALIDATION_ERROR',
-        }),
-      }),
-    );
+    const payload = jsonMock.mock.calls[0]?.[0];
+    expect(payload.error.code).toBe('VALIDATION_ERROR');
   });
 
   it('maps prisma unique violation to CONFLICT', () => {
     const { host, statusMock, jsonMock } = createHost();
-    const prismaError = new Prisma.PrismaClientKnownRequestError('unique failed', {
+    const prismaError = {
       code: 'P2002',
-      clientVersion: '6.0.0',
       meta: { target: ['email'] },
-    });
+    };
 
     filter.catch(prismaError, host);
 
     expect(statusMock).toHaveBeenCalledWith(HttpStatus.CONFLICT);
-    expect(jsonMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        error: expect.objectContaining({
-          code: 'CONFLICT',
-        }),
-      }),
-    );
+    const payload = jsonMock.mock.calls[0]?.[0];
+    expect(payload.error.code).toBe('CONFLICT');
   });
 });

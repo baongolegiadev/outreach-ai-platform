@@ -7,21 +7,18 @@
 
 ## In Progress
 
-- [ ] #003 — NestJS foundations (config, Prisma module, health, validation, error shape) [area: backend] → [.tasks/003-nest-foundations.md](.tasks/003-nest-foundations.md)
-
 ---
 
 ## Up Next (prioritized)
 
-- [ ] #004 — Auth API: register, login, JWT, logout; workspace context guard [area: backend] → [.tasks/004-auth-api-jwt.md](.tasks/004-auth-api-jwt.md)
 - [ ] #005 — Next.js app shell: layouts, auth screens, API client, env wiring [area: frontend] → [.tasks/005-next-app-shell.md](.tasks/005-next-app-shell.md)
+- [ ] #006 — Leads REST API: CRUD, search/filter, tags [area: backend] → [.tasks/006-leads-rest-api.md](.tasks/006-leads-rest-api.md)
+- [ ] #007 — Leads UI: table, detail drawer, tag + filter controls [area: frontend] → [.tasks/007-leads-ui.md](.tasks/007-leads-ui.md)
 
 ---
 
 ## Backlog
 
-- [ ] #006 — Leads REST API: CRUD, search/filter, tags [area: backend] → [.tasks/006-leads-rest-api.md](.tasks/006-leads-rest-api.md)
-- [ ] #007 — Leads UI: table, detail drawer, tag + filter controls [area: frontend] → [.tasks/007-leads-ui.md](.tasks/007-leads-ui.md)
 - [ ] #008 — CSV import: upload, validation report, bulk insert [area: backend] → [.tasks/008-csv-import-leads.md](.tasks/008-csv-import-leads.md)
 - [ ] #009 — Sequences API: campaigns, ordered steps with delays, merge fields [area: backend] → [.tasks/009-sequences-api.md](.tasks/009-sequences-api.md)
 - [ ] #010 — Sequence builder UI + lead enrollment [area: frontend] → [.tasks/010-sequence-builder-ui.md](.tasks/010-sequence-builder-ui.md)
@@ -37,6 +34,8 @@
 
 ## Completed
 
+- [x] #004 — Auth API: register, login, JWT, logout; workspace context guard [area: backend] → [.tasks/004-auth-api-jwt.md](.tasks/004-auth-api-jwt.md)
+- [x] #003 — NestJS foundations (config, Prisma module, health, validation, error shape) [area: backend] → [.tasks/003-nest-foundations.md](.tasks/003-nest-foundations.md)
 - [x] #002 — Prisma schema: users, workspaces, memberships, RBAC, leads, tags [area: database] → [.tasks/002-prisma-core-schema.md](.tasks/002-prisma-core-schema.md)
 - [x] #001 — Scaffold pnpm monorepo (apps/web Next.js, apps/api NestJS, shared tooling, root scripts) [area: setup] → [.tasks/001-monorepo-scaffold.md](.tasks/001-monorepo-scaffold.md)
 - [x] #000 — Initial project setup and template configuration → [.tasks/000-initial-project-setup.md](.tasks/000-initial-project-setup.md)

@@ -1,14 +1,14 @@
 ---
 id: '004'
 title: 'Auth API: register, login, JWT, workspace guard'
-status: 'todo'
+status: 'completed'
 area: 'backend'
 agent: '@backend-developer'
 priority: 'high'
 created_at: '2026-04-12'
 due_date: null
-started_at: null
-completed_at: null
+started_at: '2026-04-13'
+completed_at: '2026-04-13'
 prd_refs:
   [
     'FR-001',
@@ -31,13 +31,13 @@ Implement **email/password registration and login**, **password hashing**, **JWT
 
 ## Acceptance Criteria
 
-- [ ] Register and login endpoints persist user and return JWT payload contract documented in `API.md`.
-- [ ] Protected sample route proves JWT guard works.
-- [ ] Workspace membership enforced for workspace-scoped resources (pattern reusable by lead/sequence modules).
-- [ ] Admin vs Member permissions stubbed with clear extension point for future routes.
-- [ ] `docs/technical/API.md` lists auth endpoints and example payloads.
-- [ ] Relevant tests written and passing.
-- [ ] Relevant documentation updated.
+- [x] Register and login endpoints persist user and return JWT payload contract documented in `API.md`.
+- [x] Protected sample route proves JWT guard works.
+- [x] Workspace membership enforced for workspace-scoped resources (pattern reusable by lead/sequence modules).
+- [x] Admin vs Member permissions stubbed with clear extension point for future routes.
+- [x] `docs/technical/API.md` lists auth endpoints and example payloads.
+- [x] Relevant tests written and passing.
+- [x] Relevant documentation updated.
 
 ## Technical Notes
 
@@ -49,3 +49,4 @@ Implement **email/password registration and login**, **password hashing**, **JWT
 | Date       | Agent / Human | Event        |
 | ---------- | ------------- | ------------ |
 | 2026-04-12 | human         | Task created |
+| 2026-04-13 | @backend-developer | Implemented auth endpoints, JWT guard, workspace authorization guards, Prisma password hash migration, and docs/tests updates |

@@ -7,7 +7,6 @@ import {
   HttpStatus,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
 
 type ErrorCode =
@@ -66,7 +65,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       );
     }
 
-    if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+    if (this.isPrismaKnownRequestError(exception)) {
       if (exception.code === 'P2002') {
         return this.build(
           HttpStatus.CONFLICT,
@@ -94,10 +93,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const status = exception.getStatus();
       const response = exception.getResponse();
 
-      if (status === HttpStatus.NOT_FOUND) {
-        return this.build(status, 'NOT_FOUND', 'Resource not found', response, requestId);
+      if (status === 404) {
+        return this.build(
+          status,
+          'NOT_FOUND',
+          'Resource not found',
+          response,
+          requestId,
+        );
       }
-      if (status === HttpStatus.UNAUTHORIZED) {
+      if (status === 401) {
         return this.build(
           status,
           'UNAUTHENTICATED',
@@ -106,11 +111,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           requestId,
         );
       }
-      if (status === HttpStatus.FORBIDDEN) {
-        return this.build(status, 'UNAUTHORIZED', 'Access denied', response, requestId);
+      if (status === 403) {
+        return this.build(
+          status,
+          'UNAUTHORIZED',
+          'Access denied',
+          response,
+          requestId,
+        );
       }
 
-      return this.build(status, 'INTERNAL_ERROR', 'Request failed', response, requestId);
+      return this.build(
+        status,
+        'INTERNAL_ERROR',
+        'Request failed',
+        response,
+        requestId,
+      );
     }
 
     return this.build(
@@ -120,6 +137,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       undefined,
       requestId,
     );
+  }
+
+  private isPrismaKnownRequestError(
+    exception: unknown,
+  ): exception is { code: string; meta?: { target?: unknown } } {
+    if (!exception || typeof exception !== 'object') {
+      return false;
+    }
+    const candidate = exception as { code?: unknown };
+    return typeof candidate.code === 'string' && candidate.code.startsWith('P');
   }
 
   private build(

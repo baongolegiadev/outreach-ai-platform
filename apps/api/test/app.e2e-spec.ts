@@ -9,7 +9,8 @@ describe('HealthController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
-    process.env.DATABASE_URL ??= 'postgresql://postgres:postgres@localhost:5432/outreach_test';
+    process.env.DATABASE_URL ??=
+      'postgresql://postgres:postgres@localhost:5432/outreach_test';
     process.env.WEB_ORIGIN ??= 'http://localhost:3000';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
