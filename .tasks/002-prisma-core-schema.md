@@ -1,14 +1,14 @@
 ---
 id: '002'
 title: 'Prisma schema: users, workspaces, memberships, leads, tags'
-status: 'todo'
+status: 'completed'
 area: 'database'
 agent: '@database-expert'
 priority: 'high'
 created_at: '2026-04-12'
 due_date: null
-started_at: null
-completed_at: null
+started_at: '2026-04-13'
+completed_at: '2026-04-13'
 prd_refs:
   [
     'FR-010',
@@ -31,12 +31,12 @@ Introduce **Prisma** with an initial relational schema supporting **multi-tenant
 
 ## Acceptance Criteria
 
-- [ ] Prisma schema and first migration create all tables above with FK constraints and cascading rules defined.
-- [ ] Every lead row is scoped with `workspaceId`; uniqueness rules documented (e.g. email unique per workspace).
-- [ ] Seed script optional but documented if used for local dev only.
-- [ ] `docs/technical/DATABASE.md` updated with table definitions and ER summary.
-- [ ] Relevant tests written and passing (if schema tested via integration harness).
-- [ ] Relevant documentation updated.
+- [x] Prisma schema and first migration create all tables above with FK constraints and cascading rules defined.
+- [x] Every lead row is scoped with `workspaceId`; uniqueness rules documented (e.g. email unique per workspace).
+- [x] Seed script optional but documented if used for local dev only.
+- [x] `docs/technical/DATABASE.md` updated with table definitions and ER summary.
+- [x] Relevant tests written and passing (if schema tested via integration harness).
+- [x] Relevant documentation updated.
 
 ## Technical Notes
 
@@ -48,3 +48,4 @@ Introduce **Prisma** with an initial relational schema supporting **multi-tenant
 | Date       | Agent / Human | Event        |
 | ---------- | ------------- | ------------ |
 | 2026-04-12 | human         | Task created |
+| 2026-04-13 | agent         | Task implemented: Prisma core schema, migration, and DB docs updated |
