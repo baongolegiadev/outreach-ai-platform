@@ -7,10 +7,10 @@ Update trigger: Endpoints added/changed/removed
 # API Reference
 
 > **Base URL (production)**: `[TBD — Railway service URL]/v1`  
-> **Base URL (local)**: `http://localhost:3001/v1` [port TBD with implementation]  
+> **Base URL (local)**: `http://localhost:3001/v1`  
 > **Authentication**: `Authorization: Bearer <JWT>` unless cookie model adopted  
 > **Content-Type**: `application/json`  
-> **Last updated**: 2026-04-12
+> **Last updated**: 2026-04-13
 
 Concrete route list, request/response schemas, and error codes will be appended as endpoints ship (start with **task #004** auth and **#006** leads).
 
@@ -39,7 +39,8 @@ See future sections: `POST /v1/auth/register`, `POST /v1/auth/login` (names illu
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Human-readable description",
-    "details": []
+    "details": [],
+    "requestId": "optional-request-correlation-id"
   }
 }
 ```
@@ -52,6 +53,7 @@ See future sections: `POST /v1/auth/register`, `POST /v1/auth/login` (names illu
 | 404         | `NOT_FOUND`        | Unknown resource               |
 | 409         | `CONFLICT`         | State conflict / duplicate     |
 | 429         | `RATE_LIMITED`     | Throttled                      |
+| 500         | `INTERNAL_ERROR`   | Unhandled server error         |
 
 ---
 
@@ -63,7 +65,25 @@ See future sections: `POST /v1/auth/register`, `POST /v1/auth/login` (names illu
 
 ## Endpoints
 
-_Endpoint sections from the template will be filled in as the Nest modules land._
+#### [GET] /health
+
+**Auth required**: No
+**Description**: Service health check for uptime probes. This route is intentionally outside the `/v1` prefix.
+
+**Request body**:
+```json
+{}
+```
+
+**Response 200**:
+```json
+{
+  "status": "ok"
+}
+```
+
+**Error codes**:
+- `500` - Internal server error
 
 ---
 
@@ -72,3 +92,4 @@ _Endpoint sections from the template will be filled in as the Nest modules land.
 | Date       | Change                                     |
 | ---------- | ------------------------------------------ |
 | 2026-04-12 | Initial shell — stack and auth model noted |
+| 2026-04-13 | Added `/health`, stable error-code mappings, and base-route clarification |

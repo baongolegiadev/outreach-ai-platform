@@ -1,22 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { HealthController } from './health/health.controller';
 
-describe('AppController', () => {
-  let appController: AppController;
+describe('HealthController', () => {
+  let healthController: HealthController;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      controllers: [HealthController],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    healthController = moduleRef.get<HealthController>(HealthController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
-    });
+  it('should return health status payload', () => {
+    expect(healthController.getHealth()).toEqual({ status: 'ok' });
   });
 });
