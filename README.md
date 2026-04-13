@@ -42,7 +42,7 @@ The web app is **authenticated only** (no public marketing site in v1). Hosting 
 ### Installation
 
 ```bash
-git clone https://github.com/[org]/outreach-ai-platform.git
+git clone https://github.com/baongolegiadev/outreach-ai-platform.git
 cd outreach-ai-platform
 corepack enable && corepack prepare pnpm@9.15.4 --activate
 pnpm install
