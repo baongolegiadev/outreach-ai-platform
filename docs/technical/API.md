@@ -80,11 +80,13 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 **Description**: Service health check for uptime probes. This route is intentionally outside the `/v1` prefix.
 
 **Request body**:
+
 ```json
 {}
 ```
 
 **Response 200**:
+
 ```json
 {
   "status": "ok"
@@ -92,6 +94,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 ```
 
 **Error codes**:
+
 - `500` - Internal server error
 
 ---
@@ -102,6 +105,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 **Description**: Register a new user, create their first workspace, and issue an access token.
 
 **Request body**:
+
 ```json
 {
   "email": "string - valid email",
@@ -112,6 +116,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 ```
 
 **Response 201**:
+
 ```json
 {
   "accessToken": "string - JWT access token",
@@ -131,6 +136,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 ```
 
 **Error codes**:
+
 - `409` - Email already registered
 - `422` - Validation error
 - `500` - Internal server error
@@ -141,6 +147,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 **Description**: Authenticate with email/password and issue an access token for a workspace.
 
 **Request body**:
+
 ```json
 {
   "email": "string - valid email",
@@ -150,6 +157,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 ```
 
 **Response 200**:
+
 ```json
 {
   "accessToken": "string - JWT access token",
@@ -169,6 +177,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 ```
 
 **Error codes**:
+
 - `401` - Invalid credentials or no workspace membership
 - `422` - Validation error
 - `500` - Internal server error
@@ -179,11 +188,13 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 **Description**: Logout acknowledgment endpoint for stateless JWT flow (client discards access token).
 
 **Request body**:
+
 ```json
 {}
 ```
 
 **Response 200**:
+
 ```json
 {
   "success": true,
@@ -192,6 +203,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 ```
 
 **Error codes**:
+
 - `401` - Missing or invalid JWT
 - `500` - Internal server error
 
@@ -201,11 +213,13 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 **Description**: Sample protected route proving JWT auth + workspace membership enforcement (header strategy).
 
 **Request body**:
+
 ```json
 {}
 ```
 
 **Response 200**:
+
 ```json
 {
   "message": "Workspace membership verified",
@@ -216,6 +230,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 ```
 
 **Error codes**:
+
 - `401` - Missing or invalid JWT
 - `403` - Missing workspace header or no workspace membership
 - `500` - Internal server error
@@ -226,11 +241,13 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 **Description**: Sample protected admin-only route proving role-based extension point.
 
 **Request body**:
+
 ```json
 {}
 ```
 
 **Response 200**:
+
 ```json
 {
   "message": "Admin-level workspace access verified",
@@ -241,6 +258,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 ```
 
 **Error codes**:
+
 - `401` - Missing or invalid JWT
 - `403` - Not a workspace member or missing required role
 - `500` - Internal server error
@@ -249,8 +267,8 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 
 ## Changelog
 
-| Date       | Change                                     |
-| ---------- | ------------------------------------------ |
-| 2026-04-12 | Initial shell — stack and auth model noted |
-| 2026-04-13 | Added `/health`, stable error-code mappings, and base-route clarification |
+| Date       | Change                                                                        |
+| ---------- | ----------------------------------------------------------------------------- |
+| 2026-04-12 | Initial shell — stack and auth model noted                                    |
+| 2026-04-13 | Added `/health`, stable error-code mappings, and base-route clarification     |
 | 2026-04-13 | Added auth endpoints, JWT/workspace strategy, and protected workspace samples |

@@ -9,18 +9,7 @@ created_at: '2026-04-12'
 due_date: null
 started_at: '2026-04-13'
 completed_at: '2026-04-13'
-prd_refs:
-  [
-    'FR-010',
-    'FR-011',
-    'FR-012',
-    'FR-013',
-    'FR-014',
-    'FR-020',
-    'FR-021',
-    'FR-023',
-    'FR-024',
-  ]
+prd_refs: ['FR-010', 'FR-011', 'FR-012', 'FR-013', 'FR-014', 'FR-020', 'FR-021', 'FR-023', 'FR-024']
 blocks: ['003', '004', '006']
 blocked_by: ['001']
 ---
@@ -45,7 +34,7 @@ Introduce **Prisma** with an initial relational schema supporting **multi-tenant
 
 ## History
 
-| Date       | Agent / Human | Event        |
-| ---------- | ------------- | ------------ |
-| 2026-04-12 | human         | Task created |
+| Date       | Agent / Human | Event                                                                |
+| ---------- | ------------- | -------------------------------------------------------------------- |
+| 2026-04-12 | human         | Task created                                                         |
 | 2026-04-13 | agent         | Task implemented: Prisma core schema, migration, and DB docs updated |

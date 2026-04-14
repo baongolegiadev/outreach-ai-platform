@@ -7,8 +7,12 @@ describe('GlobalExceptionFilter', () => {
   type ErrorPayload = { error: { code: string } };
 
   const createHost = () => {
-    const statusMock = jest.fn().mockReturnThis() as jest.MockedFunction<(code: number) => Response>;
-    const jsonMock = jest.fn() as jest.MockedFunction<(payload: ErrorPayload) => Response>;
+    const statusMock = jest.fn().mockReturnThis() as jest.MockedFunction<
+      (code: number) => Response
+    >;
+    const jsonMock = jest.fn() as jest.MockedFunction<
+      (payload: ErrorPayload) => Response
+    >;
     const response = {
       status: statusMock,
       json: jsonMock,

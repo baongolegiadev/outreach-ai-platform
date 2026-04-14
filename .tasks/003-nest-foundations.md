@@ -34,7 +34,7 @@ Bootstrap the **NestJS** service in `apps/api` with **configuration module** (va
 
 ## History
 
-| Date       | Agent / Human | Event        |
-| ---------- | ------------- | ------------ |
-| 2026-04-12 | human         | Task created |
+| Date       | Agent / Human      | Event                                                                                 |
+| ---------- | ------------------ | ------------------------------------------------------------------------------------- |
+| 2026-04-12 | human              | Task created                                                                          |
 | 2026-04-13 | @backend-developer | Implemented config validation, Prisma module, global filter/pipe, and health endpoint |
