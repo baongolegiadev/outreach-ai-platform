@@ -15,7 +15,9 @@
     "format": "prettier --write .",
     "prisma:format": "prisma format --schema prisma/schema.prisma",
     "prisma:validate": "prisma validate --schema prisma/schema.prisma",
-    "prisma:generate": "prisma generate --schema prisma/schema.prisma"
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:prod": "dotenv -e .env.prod -- pnpm exec prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "6"
