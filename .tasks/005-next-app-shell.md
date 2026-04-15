@@ -1,14 +1,14 @@
 ---
 id: '005'
 title: 'Next.js app shell: auth screens and API client'
-status: 'todo'
+status: 'done'
 area: 'frontend'
 agent: '@frontend-developer'
 priority: 'high'
 created_at: '2026-04-12'
 due_date: null
-started_at: null
-completed_at: null
+started_at: '2026-04-15'
+completed_at: '2026-04-15'
 prd_refs: ['FR-001', 'FR-002', 'FR-003']
 blocks: ['007', '010', '014', '015', '017']
 blocked_by: ['001', '004']
@@ -20,12 +20,12 @@ Implement the **authenticated app shell** in `apps/web`: routing layout, **sign 
 
 ## Acceptance Criteria
 
-- [ ] Users can sign up, log in, and log out against the real API in local dev.
-- [ ] Authenticated layout protects app routes; unauthenticated users redirected to login.
-- [ ] API errors surface readable inline messages for auth forms.
-- [ ] `README.md` / `ARCHITECTURE.md` updated if env vars or ports differ from docs.
-- [ ] Vitest smoke test for a simple component or util (if configured).
-- [ ] Relevant documentation updated.
+- [x] Users can sign up, log in, and log out against the real API in local dev.
+- [x] Authenticated layout protects app routes; unauthenticated users redirected to login.
+- [x] API errors surface readable inline messages for auth forms.
+- [x] `README.md` / `ARCHITECTURE.md` updated if env vars or ports differ from docs.
+- [x] Vitest smoke test for a simple component or util (if configured).
+- [x] Relevant documentation updated.
 
 ## Technical Notes
 
@@ -36,3 +36,4 @@ Implement the **authenticated app shell** in `apps/web`: routing layout, **sign 
 | Date       | Agent / Human | Event        |
 | ---------- | ------------- | ------------ |
 | 2026-04-12 | human         | Task created |
+| 2026-04-15 | agent         | Implemented app shell, auth pages, Tailwind + shadcn/ui setup |

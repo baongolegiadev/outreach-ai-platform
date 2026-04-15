@@ -8,7 +8,7 @@ For design tokens and UX flows see DESIGN_SYSTEM.md (@ui-ux-designer).
 
 # System Architecture
 
-> Last updated: 2026-04-12  
+> Last updated: 2026-04-15  
 > Version: 0.1.0
 
 ---
@@ -59,11 +59,16 @@ Key architectural choices: **clear separation** between web (Vercel) and API (Ra
 
 The Next.js app uses the **App Router**. Server and client components split will follow feature implementation. **Server state** (lists, detail, mutations) should use a consistent approach (e.g. React Query) once introduced in task work.
 
-**Routing**: `apps/web/src/app/` (exact structure created in task #001 / #005).
+**Routing**: `apps/web/src/app/` with route groups:
+
+- `(auth)` for `/login` and `/signup`
+- `(app)` for the authenticated shell at `/app`
 
 **State management**: [TBD in implementation — prefer React Query for API data.]
 
-**Data fetching**: Authenticated fetches to Nest **base URL** from env; no secrets in client bundle.
+**Data fetching**: Authenticated fetches to Nest **base URL** from env (`NEXT_PUBLIC_API_URL`); no secrets in client bundle.
+
+**Styling/UI primitives**: Tailwind CSS v4 + shadcn/ui component pattern in `apps/web/src/components/ui`.
 
 ---
 
@@ -102,7 +107,7 @@ NestJS modules align to domains: **auth**, **workspaces**, **leads**, **sequence
 
 1. User submits email/password to Nest auth endpoints.
 2. API validates credentials against Prisma `User` records.
-3. API issues **JWT**; client stores per product security choice (httpOnly cookie preferred — decide in tasks).
+3. API issues **JWT**; current web client stores session metadata in `localStorage` and mirrors access token to a non-httpOnly cookie for route middleware checks.
 4. Subsequent requests include JWT; Nest guards enforce workspace authorization.
 
 ### Outbound send (summary)
@@ -113,6 +118,8 @@ NestJS modules align to domains: **auth**, **workspaces**, **leads**, **sequence
 4. Activity + analytics updated from worker events.
 
 Detailed diagrams belong here as implementation lands.
+
+> Security follow-up: move to server-issued httpOnly cookie/BFF token handling when backend support is added, and remove JS-accessible token storage.
 
 ---
 

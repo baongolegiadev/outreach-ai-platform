@@ -5,7 +5,7 @@ Owner: @documentation-writer
 
 # Outreach AI Platform — User Guide
 
-> Last updated: 2026-04-12  
+> Last updated: 2026-04-15  
 > Version: 0.1.0
 
 End-user documentation will expand as features ship (see `TODO.md`). Until the apps exist, this file is a **placeholder structure** aligned with the PRD.
@@ -20,7 +20,12 @@ End-user documentation will expand as features ship (see `TODO.md`). Until the a
 2. Choose **Sign up** and complete registration.
 3. Sign in and select or create a **workspace**.
 
-_Full screenshots and field-level copy: [TBD after UI tasks]._
+Sign up fields:
+
+- Workspace name (required)
+- Full name (optional)
+- Email (required)
+- Password (minimum 8 characters)
 
 ### Logging In
 
@@ -28,11 +33,25 @@ _Full screenshots and field-level copy: [TBD after UI tasks]._
 2. Enter email and password.
 3. Choose **Log in**.
 
+If credentials are invalid or the request fails, an inline error message appears in the form.
+
+### Logging Out
+
+1. Open the authenticated app area (`/app`).
+2. Click **Log out** in the top-right header.
+3. You will be redirected back to the login screen.
+
 ---
 
 ## Navigation
 
-_Describe main nav sections once implemented: Dashboard, Leads, Sequences, Pipeline, Settings._
+Current authenticated shell sections:
+
+- Dashboard
+- Leads (stub)
+- Sequences (stub)
+- Pipeline (stub)
+- Analytics (stub)
 
 ---
 
