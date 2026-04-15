@@ -5,6 +5,7 @@ import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ProtectedController } from './protected/protected.controller';
+import { LeadsModule } from './leads/leads.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ProtectedController } from './protected/protected.controller';
     }),
     PrismaModule,
     AuthModule,
+    LeadsModule,
   ],
   controllers: [HealthController, ProtectedController],
   providers: [],

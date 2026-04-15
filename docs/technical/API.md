@@ -265,6 +265,168 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 
 ---
 
+#### [POST] /leads
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Create a workspace-scoped lead and optionally assign workspace tags.
+
+**Request body**:
+
+```json
+{
+  "name": "string - required, 1..160 chars",
+  "email": "string - required, valid email",
+  "company": "string - optional, 1..160 chars",
+  "tagIds": ["string - optional tag UUIDs in same workspace"]
+}
+```
+
+**Response 201**:
+
+```json
+{
+  "id": "string - lead UUID",
+  "name": "string",
+  "email": "string",
+  "company": "string|null",
+  "createdAt": "string - ISO datetime",
+  "updatedAt": "string - ISO datetime",
+  "tags": [
+    {
+      "id": "string - tag UUID",
+      "name": "string - tag name"
+    }
+  ]
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `409` - Duplicate lead email in this workspace
+- `422` - Validation error (payload or invalid tag IDs)
+- `500` - Internal server error
+
+#### [GET] /leads
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: List workspace leads with search/filter and offset pagination.
+
+**Query params**:
+
+- `search` (optional): case-insensitive partial match against name, email, or company
+- `company` (optional): case-insensitive partial match on company
+- `tagIds` (optional): comma-separated UUIDs, returns leads matching any provided tag
+- `limit` (optional): default `25`, min `1`, max `100`
+- `offset` (optional): default `0`, min `0`
+
+**Response 200**:
+
+```json
+{
+  "data": [
+    {
+      "id": "string - lead UUID",
+      "name": "string",
+      "email": "string",
+      "company": "string|null",
+      "createdAt": "string - ISO datetime",
+      "updatedAt": "string - ISO datetime",
+      "tags": [
+        {
+          "id": "string - tag UUID",
+          "name": "string - tag name"
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "limit": 25,
+    "offset": 0,
+    "total": 1200,
+    "hasMore": true
+  }
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `422` - Validation error (query params)
+- `500` - Internal server error
+
+#### [GET] /leads/:leadId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Get a single lead in the current workspace.
+
+**Response 200**: Same shape as `POST /leads`.
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `404` - Lead not found in workspace
+- `500` - Internal server error
+
+#### [PATCH] /leads/:leadId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Update lead fields and optionally replace all lead tags.
+
+**Request body**:
+
+```json
+{
+  "name": "string - optional",
+  "email": "string - optional",
+  "company": "string - optional",
+  "tagIds": ["string - optional; replaces current tags when provided"]
+}
+```
+
+At least one field must be provided.
+
+**Response 200**: Same shape as `POST /leads`.
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `404` - Lead not found in workspace
+- `409` - Duplicate lead email in this workspace
+- `422` - Validation error (payload or invalid tag IDs)
+- `500` - Internal server error
+
+#### [DELETE] /leads/:leadId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Delete a lead in the current workspace.
+
+**Response 200**:
+
+```json
+{
+  "success": true
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `404` - Lead not found in workspace
+- `500` - Internal server error
+
+---
+
 ## Changelog
 
 | Date       | Change                                                                        |
@@ -272,3 +434,4 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 | 2026-04-12 | Initial shell — stack and auth model noted                                    |
 | 2026-04-13 | Added `/health`, stable error-code mappings, and base-route clarification     |
 | 2026-04-13 | Added auth endpoints, JWT/workspace strategy, and protected workspace samples |
+| 2026-04-15 | Added workspace-scoped leads CRUD endpoints with search/filter/tag support    |
