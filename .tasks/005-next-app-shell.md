@@ -1,14 +1,14 @@
 ---
 id: '005'
 title: 'Next.js app shell: auth screens and API client'
-status: 'todo'
+status: 'completed'
 area: 'frontend'
 agent: '@frontend-developer'
 priority: 'high'
 created_at: '2026-04-12'
 due_date: null
-started_at: null
-completed_at: null
+started_at: '2026-04-15'
+completed_at: '2026-04-15'
 prd_refs: ['FR-001', 'FR-002', 'FR-003']
 blocks: ['007', '010', '014', '015', '017']
 blocked_by: ['001', '004']

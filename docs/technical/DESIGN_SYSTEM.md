@@ -65,9 +65,37 @@ v1 is **app-only**; marketing imagery is **[TBD]** if future public pages ship. 
 
 | Component  | Location | Status | Notes |
 | ---------- | -------- | ------ | ----- |
-| Button     | [TBD]    | Draft  |       |
-| Input      | [TBD]    | Draft  |       |
+| Button     | `src/components/ui/button.tsx` | ✅ Implemented | shadcn/ui with variants |
+| Input      | `src/components/ui/input.tsx` | ✅ Implemented | shadcn/ui form inputs |
+| Label      | `src/components/ui/label.tsx` | ✅ Implemented | shadcn/ui accessible labels |
 | Data table | [TBD]    | Draft  | Leads |
+
+---
+
+## Tech Stack
+
+- **CSS Framework**: Tailwind CSS v4.2.2 with CSS variables for theming
+- **Component Library**: shadcn/ui with Radix UI primitives
+- **Styling Approach**: Utility-first with design tokens
+- **Color Scheme**: CSS custom properties with light/dark mode support
+
+## Current Implementation
+
+### Authentication Forms
+- LoginForm and RegisterForm use shadcn/ui Button, Input, and Label components
+- Error states use design system colors (`text-destructive`)
+- Form validation with React Hook Form + Zod
+
+### Color System
+Uses CSS custom properties defined in `globals.css`:
+
+| Token | Light Mode HSL | Usage |
+|-------|----------------|-------|
+| `--primary` | 221.2 83.2% 53.3% | Primary actions, buttons |
+| `--destructive` | 0 84.2% 60.2% | Errors, destructive actions |
+| `--muted` | 210 40% 96% | Subtle backgrounds |
+| `--background` | 0 0% 100% | Main background |
+| `--foreground` | 222.2 84% 4.9% | Main text |
 
 ---
 

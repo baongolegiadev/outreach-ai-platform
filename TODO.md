@@ -11,7 +11,6 @@
 
 ## Up Next (prioritized)
 
-- [ ] #005 — Next.js app shell: layouts, auth screens, API client, env wiring [area: frontend] → [.tasks/005-next-app-shell.md](.tasks/005-next-app-shell.md)
 - [ ] #006 — Leads REST API: CRUD, search/filter, tags [area: backend] → [.tasks/006-leads-rest-api.md](.tasks/006-leads-rest-api.md)
 - [ ] #007 — Leads UI: table, detail drawer, tag + filter controls [area: frontend] → [.tasks/007-leads-ui.md](.tasks/007-leads-ui.md)
 
@@ -34,6 +33,7 @@
 
 ## Completed
 
+- [x] #005 — Next.js app shell: auth screens and API client [area: frontend] → [.tasks/005-next-app-shell.md](.tasks/005-next-app-shell.md)
 - [x] #004 — Auth API: register, login, JWT, logout; workspace context guard [area: backend] → [.tasks/004-auth-api-jwt.md](.tasks/004-auth-api-jwt.md)
 - [x] #003 — NestJS foundations (config, Prisma module, health, validation, error shape) [area: backend] → [.tasks/003-nest-foundations.md](.tasks/003-nest-foundations.md)
 - [x] #002 — Prisma schema: users, workspaces, memberships, RBAC, leads, tags [area: database] → [.tasks/002-prisma-core-schema.md](.tasks/002-prisma-core-schema.md)
