@@ -59,7 +59,24 @@ Current authenticated shell sections:
 
 ### Leads
 
-How to add, import CSV, tag, and search leads — [TBD].
+Use the **Leads** section in the app shell to create, filter, and edit workspace leads.
+
+1. Open **Leads** from the left navigation.
+2. In **Add lead**, enter name + email (required), optional company, and optional comma-separated tag IDs.
+3. Use **Filters**:
+   - `Search` matches name, email, and company.
+   - `Company` narrows by company text.
+   - `Tag IDs` filters leads by one or more tag UUIDs.
+4. Use **Previous/Next** to paginate through large datasets.
+5. Click **View** on a row to open lead detail editing:
+   - Update name, email, company.
+   - Replace lead tags via comma-separated tag IDs.
+6. Use **Delete** to remove a lead from the workspace (confirmation required).
+
+Notes:
+- All lead operations are scoped to your active workspace.
+- If a lead email already exists in the same workspace, the app shows a conflict error.
+- Invalid tag IDs or tags outside your workspace return validation errors.
 
 ### Sequences
 

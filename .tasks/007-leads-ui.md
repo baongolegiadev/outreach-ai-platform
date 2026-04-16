@@ -1,14 +1,14 @@
 ---
 id: '007'
 title: 'Leads UI: table, detail, tags, filters'
-status: 'todo'
+status: 'done'
 area: 'frontend'
 agent: '@frontend-developer'
 priority: 'normal'
 created_at: '2026-04-12'
 due_date: null
-started_at: null
-completed_at: null
+started_at: '2026-04-15'
+completed_at: '2026-04-15'
 prd_refs: ['FR-020', 'FR-023', 'FR-024']
 blocks: ['015']
 blocked_by: ['005', '006']
@@ -20,12 +20,12 @@ Build the **Leads** experience: sortable/filterable **table** with pagination, *
 
 ## Acceptance Criteria
 
-- [ ] List view loads leads for active workspace with pagination.
-- [ ] Create/edit/delete flows call API and refresh list with optimistic UI only where safe.
-- [ ] Tagging and tag-based filters work end-to-end.
-- [ ] `docs/user/USER_GUIDE.md` updated with basic lead instructions.
-- [ ] Relevant tests written and passing.
-- [ ] Relevant documentation updated.
+- [x] List view loads leads for active workspace with pagination.
+- [x] Create/edit/delete flows call API and refresh list with optimistic UI only where safe.
+- [x] Tagging and tag-based filters work end-to-end.
+- [x] `docs/user/USER_GUIDE.md` updated with basic lead instructions.
+- [x] Relevant tests written and passing.
+- [x] Relevant documentation updated.
 
 ## Technical Notes
 
@@ -36,3 +36,4 @@ Build the **Leads** experience: sortable/filterable **table** with pagination, *
 | Date       | Agent / Human | Event        |
 | ---------- | ------------- | ------------ |
 | 2026-04-12 | human         | Task created |
+| 2026-04-15 | codex         | Task completed |

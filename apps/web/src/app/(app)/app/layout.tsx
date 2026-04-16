@@ -1,7 +1,14 @@
+import Link from 'next/link';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { RequireAuth } from '@/components/auth/require-auth';
 
-const sections = ['Dashboard', 'Leads', 'Sequences', 'Pipeline', 'Analytics'];
+const sections = [
+  { label: 'Dashboard', href: '/app' },
+  { label: 'Leads', href: '/app/leads' },
+  { label: 'Sequences', href: '/app' },
+  { label: 'Pipeline', href: '/app' },
+  { label: 'Analytics', href: '/app' },
+];
 
 export default function AppShellLayout({
   children,
@@ -23,12 +30,13 @@ export default function AppShellLayout({
           <aside className="rounded-lg border border-slate-200 bg-white p-4">
             <nav className="space-y-1">
               {sections.map((section) => (
-                <p
-                  key={section}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-slate-600"
+                <Link
+                  key={section.label}
+                  href={section.href}
+                  className="block rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
                 >
-                  {section}
-                </p>
+                  {section.label}
+                </Link>
               ))}
             </nav>
           </aside>
