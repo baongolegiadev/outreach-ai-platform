@@ -1,0 +1,6 @@
+name,email,company
+Alice Example,alice@example.com,Acme Inc
+Bob Duplicate,test01@example.com,ShouldRejectAsDuplicateExisting
+Missing Name,,
+Bad Email,bad-email,Acme Inc
+Dupe In File,alice@example.com,Acme Inc

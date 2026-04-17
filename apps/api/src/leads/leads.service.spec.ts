@@ -10,6 +10,7 @@ describe('LeadsService', () => {
   const createPrismaMock = () => ({
     lead: {
       create: jest.fn(),
+      createMany: jest.fn(),
       findMany: jest.fn(),
       count: jest.fn(),
       findFirst: jest.fn(),
@@ -112,5 +113,47 @@ describe('LeadsService', () => {
     await expect(service.getById(otherWorkspaceId, leadId)).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  it('imports leads from CSV with a validation report (partial commit)', async () => {
+    const prismaMock = createPrismaMock();
+    const service = new LeadsService(prismaMock as never);
+
+    prismaMock.lead.findMany.mockResolvedValue([{ email: 'exists@acme.com' }]);
+    prismaMock.lead.createMany.mockResolvedValue({ count: 1 });
+
+    const csv = [
+      'name,email,company',
+      'Alice,alice@acme.com,Acme',
+      'Bob,exists@acme.com,Acme',
+      ',missing-name@acme.com,Acme',
+      'Bad Email,bad-email,Acme',
+      'Dupe,alice@acme.com,Acme',
+    ].join('\n');
+
+    const result = await service.importFromCsv(workspaceId, Buffer.from(csv, 'utf8'));
+
+    expect(result.policy).toEqual({ commit: 'partial', duplicates: 'skip' });
+    expect(result.totals.rows).toBe(5);
+    expect(result.totals.accepted).toBe(1);
+    expect(result.totals.rejected).toBeGreaterThan(0);
+    expect(prismaMock.lead.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: [
+          expect.objectContaining({
+            workspaceId,
+            email: 'alice@acme.com',
+            name: 'Alice',
+            company: 'Acme',
+          }),
+        ],
+      }),
+    );
+
+    const rejectedReasonSets = result.rejectedRows.map((r) => r.reasons.join(','));
+    expect(rejectedReasonSets.some((r) => r.includes('DUPLICATE_EXISTING'))).toBe(true);
+    expect(rejectedReasonSets.some((r) => r.includes('MISSING_NAME'))).toBe(true);
+    expect(rejectedReasonSets.some((r) => r.includes('INVALID_EMAIL'))).toBe(true);
+    expect(rejectedReasonSets.some((r) => r.includes('DUPLICATE_IN_FILE'))).toBe(true);
   });
 });

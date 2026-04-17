@@ -4,6 +4,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { parse } from 'csv-parse/sync';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateLeadDto,
@@ -50,6 +51,39 @@ export interface LeadListResponse {
     total: number;
     hasMore: boolean;
   };
+}
+
+type LeadImportRejectReason =
+  | 'MISSING_NAME'
+  | 'MISSING_EMAIL'
+  | 'INVALID_EMAIL'
+  | 'DUPLICATE_IN_FILE'
+  | 'DUPLICATE_EXISTING'
+  | 'INVALID_HEADERS'
+  | 'INVALID_CSV'
+  | 'TOO_MANY_ROWS';
+
+export interface LeadCsvImportRejectedRow {
+  rowNumber: number;
+  reasons: LeadImportRejectReason[];
+  values: {
+    name: string | null;
+    email: string | null;
+    company: string | null;
+  };
+}
+
+export interface LeadCsvImportReport {
+  policy: {
+    commit: 'partial';
+    duplicates: 'skip';
+  };
+  totals: {
+    rows: number;
+    accepted: number;
+    rejected: number;
+  };
+  rejectedRows: LeadCsvImportRejectedRow[];
 }
 
 @Injectable()
@@ -200,6 +234,166 @@ export class LeadsService {
     }
 
     return { success: true };
+  }
+
+  async importFromCsv(
+    workspaceId: string,
+    csvBuffer: Buffer,
+  ): Promise<LeadCsvImportReport> {
+    const maxRows = 10_000;
+
+    const rejectedRows: LeadCsvImportRejectedRow[] = [];
+    const acceptedRows: Array<{ name: string; email: string; company: string | null }> =
+      [];
+
+    const isValidEmail = (email: string): boolean => {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    let records: Array<Record<string, unknown>>;
+    try {
+      records = parse(csvBuffer, {
+        columns: (headers: string[]) => {
+          const normalized = headers.map((h) => h.trim().toLowerCase());
+          const required = ['name', 'email'];
+          const hasAllRequired = required.every((key) => normalized.includes(key));
+          if (!hasAllRequired) {
+            throw new Error('INVALID_HEADERS');
+          }
+          return normalized;
+        },
+        skip_empty_lines: true,
+        trim: true,
+      }) as Array<Record<string, unknown>>;
+    } catch (err) {
+      const reason: LeadImportRejectReason =
+        err instanceof Error && err.message === 'INVALID_HEADERS'
+          ? 'INVALID_HEADERS'
+          : 'INVALID_CSV';
+      return {
+        policy: { commit: 'partial', duplicates: 'skip' },
+        totals: { rows: 0, accepted: 0, rejected: 1 },
+        rejectedRows: [
+          {
+            rowNumber: 0,
+            reasons: [reason],
+            values: { name: null, email: null, company: null },
+          },
+        ],
+      };
+    }
+
+    if (records.length > maxRows) {
+      return {
+        policy: { commit: 'partial', duplicates: 'skip' },
+        totals: { rows: records.length, accepted: 0, rejected: 1 },
+        rejectedRows: [
+          {
+            rowNumber: 0,
+            reasons: ['TOO_MANY_ROWS'],
+            values: { name: null, email: null, company: null },
+          },
+        ],
+      };
+    }
+
+    const seenEmailsInFile = new Set<string>();
+    const candidates: Array<{ rowNumber: number; name: string; email: string; company: string | null }> =
+      [];
+
+    for (let i = 0; i < records.length; i += 1) {
+      const rowNumber = i + 1;
+      const record = records[i] ?? {};
+
+      const name = typeof record.name === 'string' ? record.name.trim() : '';
+      const email = typeof record.email === 'string' ? record.email.trim() : '';
+      const company =
+        typeof record.company === 'string' && record.company.trim().length > 0
+          ? record.company.trim()
+          : null;
+
+      const reasons: LeadImportRejectReason[] = [];
+      if (!name) reasons.push('MISSING_NAME');
+      if (!email) reasons.push('MISSING_EMAIL');
+      if (email && !isValidEmail(email)) reasons.push('INVALID_EMAIL');
+
+      if (email) {
+        if (seenEmailsInFile.has(email)) {
+          reasons.push('DUPLICATE_IN_FILE');
+        } else {
+          seenEmailsInFile.add(email);
+        }
+      }
+
+      if (reasons.length > 0) {
+        rejectedRows.push({
+          rowNumber,
+          reasons,
+          values: {
+            name: name || null,
+            email: email || null,
+            company,
+          },
+        });
+        continue;
+      }
+
+      candidates.push({ rowNumber, name, email, company });
+    }
+
+    const candidateEmails = candidates.map((c) => c.email);
+    const existing = await this.prisma.lead.findMany({
+      where: {
+        workspaceId,
+        email: { in: candidateEmails },
+      },
+      select: {
+        email: true,
+      },
+    });
+    const existingEmails = new Set(existing.map((l) => l.email));
+
+    for (const candidate of candidates) {
+      if (existingEmails.has(candidate.email)) {
+        rejectedRows.push({
+          rowNumber: candidate.rowNumber,
+          reasons: ['DUPLICATE_EXISTING'],
+          values: {
+            name: candidate.name,
+            email: candidate.email,
+            company: candidate.company,
+          },
+        });
+        continue;
+      }
+      acceptedRows.push({
+        name: candidate.name,
+        email: candidate.email,
+        company: candidate.company,
+      });
+    }
+
+    if (acceptedRows.length > 0) {
+      await this.prisma.lead.createMany({
+        data: acceptedRows.map((row) => ({
+          workspaceId,
+          name: row.name,
+          email: row.email,
+          company: row.company,
+        })),
+        skipDuplicates: true,
+      });
+    }
+
+    return {
+      policy: { commit: 'partial', duplicates: 'skip' },
+      totals: {
+        rows: records.length,
+        accepted: acceptedRows.length,
+        rejected: rejectedRows.length,
+      },
+      rejectedRows,
+    };
   }
 
   private parseCreateInput(input: unknown): CreateLeadDto {

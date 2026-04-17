@@ -427,6 +427,93 @@ At least one field must be provided.
 
 ---
 
+#### [POST] /leads/import/csv
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Content-Type**: `multipart/form-data`  
+**Description**: Import leads from a CSV file and return a structured validation report. This endpoint uses a **partial commit** policy: valid rows are inserted; invalid rows are rejected and reported.
+
+**Duplicate email policy (per workspace)**: **skip duplicates** (rows with an email that already exists in the workspace are rejected with `DUPLICATE_EXISTING`). Duplicate emails **within the same CSV** are rejected with `DUPLICATE_IN_FILE`.
+
+**Upload limits**:
+
+- Max file size: `5MB` (requests exceeding this limit return `413`)
+
+**Request**:
+
+- Form field: `file` (the CSV file)
+
+**CSV header mapping** (case-insensitive; extra columns ignored):
+
+- `name` (required)
+- `email` (required)
+- `company` (optional)
+
+**Example CSV**:
+
+```csv
+name,email,company
+Jane Doe,jane@example.com,Acme Inc
+John Smith,john@contoso.com,Contoso
+```
+
+**Response 200**:
+
+```json
+{
+  "policy": {
+    "commit": "partial",
+    "duplicates": "skip"
+  },
+  "totals": {
+    "rows": 2,
+    "accepted": 2,
+    "rejected": 0
+  },
+  "rejectedRows": []
+}
+```
+
+**Rejected row shape**:
+
+```json
+{
+  "rowNumber": 3,
+  "reasons": ["INVALID_EMAIL", "MISSING_NAME"],
+  "values": {
+    "name": null,
+    "email": "not-an-email",
+    "company": "Acme Inc"
+  }
+}
+```
+
+**Possible `reasons` values**:
+
+- `MISSING_NAME`
+- `MISSING_EMAIL`
+- `INVALID_EMAIL`
+- `DUPLICATE_IN_FILE`
+- `DUPLICATE_EXISTING`
+- `INVALID_HEADERS` (missing required CSV headers)
+- `INVALID_CSV`
+- `TOO_MANY_ROWS`
+
+**Large file strategy**:
+
+Current implementation enforces a small file-size limit and parses the CSV in-memory. If/when larger imports are required, switch to a streaming parser (line-by-line) with chunked `createMany` inserts and incremental aggregation of the validation report.
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `413` - Uploaded file too large
+- `422` - Validation error (invalid CSV / headers)
+- `500` - Internal server error
+
+---
+
 ## Changelog
 
 | Date       | Change                                                                        |

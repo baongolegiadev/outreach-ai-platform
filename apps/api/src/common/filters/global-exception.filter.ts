@@ -43,6 +43,27 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   ): { status: number; payload: ErrorEnvelope } {
     const requestId = request.headers['x-request-id'];
 
+    const multerCode = this.getMulterErrorCode(exception);
+    if (multerCode) {
+      if (multerCode === 'LIMIT_FILE_SIZE') {
+        return this.build(
+          HttpStatus.PAYLOAD_TOO_LARGE,
+          'VALIDATION_ERROR',
+          'Uploaded file is too large',
+          { multerCode },
+          requestId,
+        );
+      }
+
+      return this.build(
+        HttpStatus.BAD_REQUEST,
+        'VALIDATION_ERROR',
+        'File upload failed',
+        { multerCode },
+        requestId,
+      );
+    }
+
     if (exception instanceof UnprocessableEntityException) {
       const details = exception.getResponse();
       return this.build(
@@ -147,6 +168,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
     const candidate = exception as { code?: unknown };
     return typeof candidate.code === 'string' && candidate.code.startsWith('P');
+  }
+
+  private getMulterErrorCode(exception: unknown): string | null {
+    if (!exception || typeof exception !== 'object') {
+      return null;
+    }
+    const candidate = exception as { name?: unknown; code?: unknown };
+    if (candidate.name !== 'MulterError') {
+      return null;
+    }
+    return typeof candidate.code === 'string' ? candidate.code : null;
   }
 
   private build(
