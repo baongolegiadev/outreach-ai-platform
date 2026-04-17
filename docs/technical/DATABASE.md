@@ -19,6 +19,8 @@ Current core entities implemented in task `002-prisma-core-schema`: **User**, **
 ```
 User ──< Membership >── Workspace
 Workspace ──< Lead ──< LeadTag >── Tag
+Workspace ──< Sequence ──< SequenceStep
+Workspace ──< SequenceEnrollment >── Lead
 ```
 
 ---
@@ -163,6 +165,75 @@ Workspace ──< Lead ──< LeadTag >── Tag
 
 **Notes**: Cascading deletes avoid orphan rows when leads or tags are removed.
 
+### Sequence
+
+**Purpose**: Workspace-scoped outbound campaign definition (a sequence of email steps).
+
+| Column      | Type           | Constraints                               | Description                         |
+| ----------- | -------------- | ----------------------------------------- | ----------------------------------- |
+| id          | uuid           | PK, NOT NULL, DEFAULT `gen_random_uuid()` | Primary key                         |
+| workspaceId | uuid           | NOT NULL, FK -> `Workspace.id`            | Tenant scope                        |
+| name        | text           | NOT NULL                                  | Sequence name                       |
+| createdAt   | timestamptz(6) | NOT NULL, DEFAULT `CURRENT_TIMESTAMP`     | Record creation timestamp           |
+| updatedAt   | timestamptz(6) | NOT NULL                                  | Last update timestamp               |
+
+**Indexes**:
+
+- `Sequence_workspaceId_createdAt_idx` on `(workspaceId, createdAt)` - list ordering and pagination.
+- `Sequence_workspaceId_name_idx` on `(workspaceId, name)` - search/filter by name.
+
+**Relationships**:
+
+- Referenced by `SequenceStep.sequenceId` (`ON DELETE CASCADE`)
+- Referenced by `SequenceEnrollment.sequenceId` (`ON DELETE CASCADE`)
+
+### SequenceStep
+
+**Purpose**: Ordered step definitions with delays and per-step templates.
+
+| Column       | Type           | Constraints                               | Description                                         |
+| ------------ | -------------- | ----------------------------------------- | --------------------------------------------------- |
+| id           | uuid           | PK, NOT NULL, DEFAULT `gen_random_uuid()` | Primary key                                         |
+| workspaceId  | uuid           | NOT NULL, FK -> `Workspace.id`            | Tenant scope                                        |
+| sequenceId   | uuid           | NOT NULL, FK -> `Sequence.id`             | Owning sequence                                     |
+| stepOrder    | int            | NOT NULL                                  | Step order starting at 0                            |
+| delayMinutes | int            | NOT NULL                                  | Delay after previous send (first step may be 0)     |
+| subject      | text           | NOT NULL                                  | Subject template (`{{first_name}}`, `{{company}}`)  |
+| body         | text           | NOT NULL                                  | Body template (`{{first_name}}`, `{{company}}`)     |
+| createdAt    | timestamptz(6) | NOT NULL, DEFAULT `CURRENT_TIMESTAMP`     | Record creation timestamp                           |
+| updatedAt    | timestamptz(6) | NOT NULL                                  | Last update timestamp                               |
+
+**Indexes**:
+
+- `SequenceStep_sequenceId_stepOrder_key` on `(sequenceId, stepOrder)` - enforces stable ordering.
+- `SequenceStep_workspaceId_sequenceId_idx` on `(workspaceId, sequenceId)` - listing steps per sequence.
+
+### SequenceEnrollment
+
+**Purpose**: Lead enrollment records with state and scheduling fields used for queue scanning.
+
+| Column      | Type                     | Constraints                               | Description                                      |
+| ----------- | ------------------------ | ----------------------------------------- | ------------------------------------------------ |
+| id          | uuid                     | PK, NOT NULL, DEFAULT `gen_random_uuid()` | Primary key                                      |
+| workspaceId | uuid                     | NOT NULL, FK -> `Workspace.id`            | Tenant scope                                     |
+| sequenceId  | uuid                     | NOT NULL, FK -> `Sequence.id`             | Owning sequence                                  |
+| leadId      | uuid                     | NOT NULL, FK -> `Lead.id`                 | Enrolled lead                                    |
+| status      | SequenceEnrollmentStatus  | NOT NULL, DEFAULT `ACTIVE`                | `ACTIVE`, `COMPLETED`, `STOPPED`                 |
+| currentStep | int                      | NOT NULL, DEFAULT `0`                     | Current step cursor (0-based)                    |
+| nextSendAt  | timestamptz(6)           | NULL                                      | Next eligible send time for queue scanning       |
+| startedAt   | timestamptz(6)           | NOT NULL, DEFAULT `CURRENT_TIMESTAMP`     | When enrollment started                          |
+| completedAt | timestamptz(6)           | NULL                                      | When enrollment completed                        |
+| stoppedAt   | timestamptz(6)           | NULL                                      | When enrollment stopped                          |
+| createdAt   | timestamptz(6)           | NOT NULL, DEFAULT `CURRENT_TIMESTAMP`     | Record creation timestamp                        |
+| updatedAt   | timestamptz(6)           | NOT NULL                                  | Last update timestamp                            |
+
+**Indexes**:
+
+- `SequenceEnrollment_sequenceId_leadId_key` on `(sequenceId, leadId)` - prevents duplicate enrollments.
+- `SequenceEnrollment_workspaceId_status_nextSendAt_idx` on `(workspaceId, status, nextSendAt)` - queue scanning.
+- `SequenceEnrollment_workspaceId_sequenceId_status_idx` on `(workspaceId, sequenceId, status)` - sequence monitoring.
+- `SequenceEnrollment_workspaceId_leadId_idx` on `(workspaceId, leadId)` - lead enrollment lookups.
+
 ---
 
 ## Migrations Log
@@ -170,8 +241,10 @@ Workspace ──< Lead ──< LeadTag >── Tag
 | Migration                       | Date       | Description                                                                                                                                                                                                                      |
 | ------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `202604130001_init_core_schema` | 2026-04-13 | Added initial Prisma core schema for users, workspaces, memberships, leads, tags, and lead-tag join table. Includes FK cascades, lead uniqueness on `(workspaceId, email)`, and workspace-scoped indexes for lead/tag filtering. |
+| `202604170001_sequences_steps_enrollments` | 2026-04-17 | Added sequences, ordered steps, and enrollments (with status + queue scanning indexes). |
 
 Rollback companion: `prisma/migrations/202604130001_init_core_schema/rollback.sql` (destructive, local/dev recovery only).
+Rollback companion: `prisma/migrations/202604170001_sequences_steps_enrollments/rollback.sql` (destructive, local/dev recovery only).
 
 ---
 

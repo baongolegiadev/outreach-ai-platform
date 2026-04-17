@@ -514,6 +514,212 @@ Current implementation enforces a small file-size limit and parses the CSV in-me
 
 ---
 
+#### [POST] /sequences
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Create a workspace-scoped sequence (campaign).
+
+**Request body**:
+
+```json
+{
+  "name": "string - required, 1..160 chars"
+}
+```
+
+**Response 201**:
+
+```json
+{
+  "id": "string - sequence UUID",
+  "name": "string",
+  "createdAt": "string - ISO datetime",
+  "updatedAt": "string - ISO datetime"
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `422` - Validation error
+- `500` - Internal server error
+
+#### [GET] /sequences
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: List sequences with offset pagination.
+
+**Query params**:
+
+- `search` (optional): case-insensitive partial match on sequence name
+- `limit` (optional): default `25`, min `1`, max `100`
+- `offset` (optional): default `0`, min `0`
+
+**Response 200**:
+
+```json
+{
+  "data": [
+    {
+      "id": "string - sequence UUID",
+      "name": "string",
+      "createdAt": "string - ISO datetime",
+      "updatedAt": "string - ISO datetime"
+    }
+  ],
+  "pagination": {
+    "limit": 25,
+    "offset": 0,
+    "total": 10,
+    "hasMore": false
+  }
+}
+```
+
+#### [GET] /sequences/:sequenceId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Get a single sequence in the current workspace.
+
+**Response 200**: Same shape as `POST /sequences`.
+
+#### [PATCH] /sequences/:sequenceId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Update a sequence.
+
+**Request body**:
+
+```json
+{
+  "name": "string - optional, 1..160 chars"
+}
+```
+
+**Error codes**:
+
+- `404` - Sequence not found in workspace
+- `422` - Validation error
+
+#### [DELETE] /sequences/:sequenceId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Delete a sequence and cascade-delete its steps and enrollments.
+
+**Response 200**:
+
+```json
+{
+  "success": true
+}
+```
+
+---
+
+#### [POST] /sequences/:sequenceId/steps
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Add an ordered step to a sequence.
+
+**Request body**:
+
+```json
+{
+  "stepOrder": "number - required, integer >= 0",
+  "delayMinutes": "number - required; first step may be 0, later steps must be >= 1",
+  "subject": "string - required; supports {{first_name}} and {{company}}",
+  "body": "string - required; supports {{first_name}} and {{company}}"
+}
+```
+
+**Response 201**:
+
+```json
+{
+  "id": "string - step UUID",
+  "sequenceId": "string - sequence UUID",
+  "stepOrder": 0,
+  "delayMinutes": 0,
+  "subject": "string",
+  "body": "string",
+  "createdAt": "string - ISO datetime",
+  "updatedAt": "string - ISO datetime"
+}
+```
+
+#### [GET] /sequences/:sequenceId/steps
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: List steps for a sequence in ascending `stepOrder`.
+
+**Response 200**: Array of step objects (same shape as `POST /sequences/:sequenceId/steps`).
+
+#### [PATCH] /sequences/:sequenceId/steps/:stepId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Update a step. Validation enforces delay rules and supported merge fields.
+
+#### [DELETE] /sequences/:sequenceId/steps/:stepId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Delete a step.
+
+---
+
+#### [POST] /sequences/:sequenceId/enroll
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Enroll many workspace leads into a sequence. The server batches inserts and returns progress reporting.
+
+**Request body**:
+
+```json
+{
+  "leadIds": ["string - lead UUIDs (must belong to workspace)"],
+  "batchSize": "number - optional, 1..1000 (default 500)"
+}
+```
+
+**Response 200**:
+
+```json
+{
+  "totals": {
+    "requested": 3,
+    "validLeads": 2,
+    "created": 2,
+    "skippedAlreadyEnrolled": 0,
+    "invalidLeadIds": 1
+  },
+  "progress": [
+    {
+      "batch": 1,
+      "attempted": 2,
+      "created": 2,
+      "skippedAlreadyEnrolled": 0
+    }
+  ]
+}
+```
+
+**Error codes**:
+
+- `404` - Sequence not found in workspace
+- `422` - Validation error
+
+---
+
 ## Changelog
 
 | Date       | Change                                                                        |
@@ -522,3 +728,4 @@ Current implementation enforces a small file-size limit and parses the CSV in-me
 | 2026-04-13 | Added `/health`, stable error-code mappings, and base-route clarification     |
 | 2026-04-13 | Added auth endpoints, JWT/workspace strategy, and protected workspace samples |
 | 2026-04-15 | Added workspace-scoped leads CRUD endpoints with search/filter/tag support    |
+| 2026-04-17 | Added sequences CRUD, steps, and enrollment endpoints                         |

@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ProtectedController } from './protected/protected.controller';
 import { LeadsModule } from './leads/leads.module';
+import { SequencesModule } from './sequences/sequences.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LeadsModule } from './leads/leads.module';
     PrismaModule,
     AuthModule,
     LeadsModule,
+    SequencesModule,
   ],
   controllers: [HealthController, ProtectedController],
   providers: [],

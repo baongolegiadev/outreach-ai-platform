@@ -12,6 +12,12 @@ enum MembershipRole {
   MEMBER
 }
 
+enum SequenceEnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  STOPPED
+}
+
 model User {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email       String       @unique
@@ -30,6 +36,9 @@ model Workspace {
   memberships Membership[]
   leads       Lead[]
   tags        Tag[]
+  sequences   Sequence[]
+  sequenceSteps       SequenceStep[]
+  sequenceEnrollments SequenceEnrollment[]
 }
 
 model Membership {
@@ -54,11 +63,68 @@ model Lead {
   updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tags        LeadTag[]
+  enrollments SequenceEnrollment[]
 
   @@unique([workspaceId, email])
   @@index([workspaceId, name])
   @@index([workspaceId, company])
   @@index([workspaceId, createdAt])
+}
+
+model Sequence {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String              @db.Uuid
+  name        String
+  createdAt   DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime            @updatedAt @db.Timestamptz(6)
+  workspace   Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  steps       SequenceStep[]
+  enrollments SequenceEnrollment[]
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, name])
+}
+
+model SequenceStep {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId  String    @db.Uuid
+  sequenceId   String    @db.Uuid
+  stepOrder    Int
+  delayMinutes Int
+  subject      String
+  body         String
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequence  Sequence  @relation(fields: [sequenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([sequenceId, stepOrder])
+  @@index([workspaceId, sequenceId])
+}
+
+model SequenceEnrollment {
+  id           String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId  String                   @db.Uuid
+  sequenceId   String                   @db.Uuid
+  leadId       String                   @db.Uuid
+  status       SequenceEnrollmentStatus @default(ACTIVE)
+  currentStep  Int                      @default(0)
+  nextSendAt   DateTime?                @db.Timestamptz(6)
+  startedAt    DateTime                 @default(now()) @db.Timestamptz(6)
+  completedAt  DateTime?                @db.Timestamptz(6)
+  stoppedAt    DateTime?                @db.Timestamptz(6)
+  createdAt    DateTime                 @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime                 @updatedAt @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequence  Sequence  @relation(fields: [sequenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  lead      Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([sequenceId, leadId])
+  @@index([workspaceId, status, nextSendAt])
+  @@index([workspaceId, sequenceId, status])
+  @@index([workspaceId, leadId])
 }
 
 model Tag {
