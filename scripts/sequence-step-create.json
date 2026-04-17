@@ -1,0 +1,7 @@
+{
+  "stepOrder": 0,
+  "delayMinutes": 0,
+  "subject": "Hello {{first_name}}",
+  "body": "Hi {{first_name}}, saw you at {{company}}."
+}
+
