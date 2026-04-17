@@ -5,7 +5,7 @@ import { RequireAuth } from '@/components/auth/require-auth';
 const sections = [
   { label: 'Dashboard', href: '/app' },
   { label: 'Leads', href: '/app/leads' },
-  { label: 'Sequences', href: '/app' },
+  { label: 'Sequences', href: '/app/sequences' },
   { label: 'Pipeline', href: '/app' },
   { label: 'Analytics', href: '/app' },
 ];

@@ -16,6 +16,7 @@ import {
   parseTagIdsInput,
   updateLead,
 } from '@/lib/leads-api';
+import { enrollLeads, listSequences, Sequence } from '@/lib/sequences-api';
 
 type SortKey = 'name' | 'email' | 'company' | 'createdAt';
 
@@ -47,6 +48,10 @@ export default function LeadsPage(): React.JSX.Element {
   const [detailEmail, setDetailEmail] = useState('');
   const [detailCompany, setDetailCompany] = useState('');
   const [detailTagIds, setDetailTagIds] = useState('');
+  const [selectedLeadIds, setSelectedLeadIds] = useState<Record<string, boolean>>({});
+  const [sequences, setSequences] = useState<Sequence[]>([]);
+  const [selectedSequenceId, setSelectedSequenceId] = useState<string>('');
+  const [enrollResultMessage, setEnrollResultMessage] = useState<string | null>(null);
 
   const session = getAuthSession();
   const workspaceId = session?.workspaceId ?? '';
@@ -119,6 +124,23 @@ export default function LeadsPage(): React.JSX.Element {
     void loadLeads(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspaceId, activeSearch, activeCompany, activeTagIds.join(',')]);
+
+  useEffect(() => {
+    async function loadSequencesForEnroll(): Promise<void> {
+      if (!workspaceId) return;
+      try {
+        const response = await listSequences(workspaceId, { limit: 100, offset: 0 });
+        setSequences(response.data);
+        if (response.data.length > 0 && !selectedSequenceId) {
+          setSelectedSequenceId(response.data[0]?.id ?? '');
+        }
+      } catch {
+        setSequences([]);
+      }
+    }
+    void loadSequencesForEnroll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceId]);
 
   useEffect(() => {
     void reloadSelectedLead();
@@ -218,6 +240,33 @@ export default function LeadsPage(): React.JSX.Element {
     }
   }
 
+  const selectedIds = Object.entries(selectedLeadIds)
+    .filter(([, checked]) => checked)
+    .map(([id]) => id);
+
+  async function handleEnrollSelectedLeads(): Promise<void> {
+    if (!workspaceId || !selectedSequenceId || selectedIds.length === 0) {
+      return;
+    }
+    setIsSaving(true);
+    setErrorMessage(null);
+    setEnrollResultMessage(null);
+    try {
+      const result = await enrollLeads(workspaceId, selectedSequenceId, {
+        leadIds: selectedIds,
+        batchSize: 500,
+      });
+      setEnrollResultMessage(
+        `Enrolled: created ${result.totals.created}, skipped ${result.totals.skippedAlreadyEnrolled}, invalid ${result.totals.invalidLeadIds}.`,
+      );
+      setSelectedLeadIds({});
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to enroll selected leads.');
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -232,6 +281,62 @@ export default function LeadsPage(): React.JSX.Element {
           <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       )}
+
+      {enrollResultMessage && (
+        <Alert data-testid="leads-enroll-result">
+          <AlertDescription>{enrollResultMessage}</AlertDescription>
+        </Alert>
+      )}
+
+      <Card data-testid="leads-enroll-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Enroll selected leads</CardTitle>
+          <CardDescription>
+            Select leads in the table, choose a sequence, then enroll. Enrollment runs in server-side batches.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Sequence</Label>
+              <select
+                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
+                value={selectedSequenceId}
+                onChange={(e) => setSelectedSequenceId(e.target.value)}
+                data-testid="leads-enroll-sequence"
+              >
+                <option value="" disabled>
+                  Select a sequence
+                </option>
+                {sequences.map((sequence) => (
+                  <option key={sequence.id} value={sequence.id}>
+                    {sequence.name}
+                  </option>
+                ))}
+              </select>
+              {sequences.length === 0 && (
+                <p className="text-xs text-slate-500">
+                  No sequences found. Create one in the Sequences section first.
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label>Selected leads</Label>
+              <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                {selectedIds.length} selected
+              </div>
+              <Button
+                type="button"
+                disabled={isSaving || !selectedSequenceId || selectedIds.length === 0}
+                onClick={() => void handleEnrollSelectedLeads()}
+                data-testid="leads-enroll-submit"
+              >
+                {isSaving ? 'Enrolling...' : 'Enroll selected'}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card data-testid="lead-create-card">
         <CardHeader>
@@ -355,6 +460,7 @@ export default function LeadsPage(): React.JSX.Element {
                 <table className="w-full text-left text-sm" data-testid="leads-table">
                   <thead>
                     <tr className="border-b border-slate-200 text-slate-600">
+                      <th className="px-3 py-2">Select</th>
                       <th className="px-3 py-2">
                         <button type="button" onClick={() => handleSort('name')}>
                           Name
@@ -382,6 +488,19 @@ export default function LeadsPage(): React.JSX.Element {
                   <tbody>
                     {sortedRows.map((lead) => (
                       <tr key={lead.id} className="border-b border-slate-100">
+                        <td className="px-3 py-2">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(selectedLeadIds[lead.id])}
+                            onChange={(e) =>
+                              setSelectedLeadIds((current) => ({
+                                ...current,
+                                [lead.id]: e.target.checked,
+                              }))
+                            }
+                            data-testid={`lead-select-${lead.id}`}
+                          />
+                        </td>
                         <td className="px-3 py-2">{lead.name}</td>
                         <td className="px-3 py-2">{lead.email}</td>
                         <td className="px-3 py-2">{lead.company ?? '-'}</td>

@@ -80,7 +80,43 @@ Notes:
 
 ### Sequences
 
-How to build steps, set delays, use `{{first_name}}` and `{{company}}`, enroll leads — [TBD].
+Use the **Sequences** section to build outbound campaigns made of ordered email steps, each with a delay and a template.
+
+#### Creating a Sequence
+
+1. Open **Sequences** from the left navigation.
+2. In **New sequence name**, enter a name and click **Create**.
+3. Select the sequence from **Your sequences** to open the builder.
+
+#### Building Steps (Delay + Templates)
+
+Each sequence contains one or more **steps**. Recommended minimum is **3 steps**.
+
+1. Click **Add step** to append a new step.
+2. For each step:
+   - **Delay after previous step**: choose a numeric value and a unit (`minutes`, `hours`, `days`).
+     - Step 1 (order 0) can be `0`.
+     - Subsequent steps must have a delay of **at least 1 minute**.
+   - **Subject** and **Body**: write templates using supported merge variables.
+3. Click **Create step** (first save) or **Save changes** (updates).
+
+Supported merge variables:
+
+- `{{first_name}}`
+- `{{company}}`
+
+The builder shows a preview using example values so you can verify how templates render.
+
+#### Enrolling Leads into a Sequence
+
+Enrollment is triggered from the **Leads** page:
+
+1. Open **Leads**.
+2. In the leads table, tick the checkbox for one or more leads.
+3. In **Enroll selected leads**, choose a sequence.
+4. Click **Enroll selected**.
+
+The app displays the enrollment result (created / skipped / invalid) after the request completes.
 
 ### Analytics
 
