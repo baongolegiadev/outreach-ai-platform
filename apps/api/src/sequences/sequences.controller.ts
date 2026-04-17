@@ -3,12 +3,15 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { WorkspaceContext } from '../auth/auth.types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentWorkspace } from '../workspace-access/decorators/workspace-context.decorator';
@@ -20,7 +23,10 @@ import type { EnrollLeadsResponse, SequenceListResponse } from './sequences.serv
 @Controller('sequences')
 @UseGuards(JwtAuthGuard, WorkspaceMembershipGuard)
 export class SequencesController {
-  constructor(private readonly sequencesService: SequencesService) {}
+  constructor(
+    private readonly sequencesService: SequencesService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post()
   @WorkspaceAccess()
@@ -131,6 +137,32 @@ export class SequencesController {
     @Body() body: unknown,
   ): Promise<EnrollLeadsResponse> {
     return this.sequencesService.enrollLeads(workspace.workspaceId, sequenceId, body);
+  }
+
+  @Post(':sequenceId/dispatch')
+  @WorkspaceAccess()
+  @HttpCode(HttpStatus.ACCEPTED)
+  dispatch(
+    @CurrentWorkspace() workspace: WorkspaceContext,
+    @Param('sequenceId') sequenceId: string,
+  ): Promise<{ accepted: true; sequenceId: string; queuedJobs: number }> {
+    const inboxIdentity =
+      this.configService.get<string>('OUTBOUND_DEFAULT_FROM_EMAIL') ??
+      'no-reply@example.com';
+    return this.sequencesService.dispatchSequence(
+      workspace.workspaceId,
+      sequenceId,
+      inboxIdentity,
+    );
+  }
+
+  @Get(':sequenceId/dead-letters')
+  @WorkspaceAccess()
+  listDeadLetters(
+    @CurrentWorkspace() workspace: WorkspaceContext,
+    @Param('sequenceId') sequenceId: string,
+  ) {
+    return this.sequencesService.listDeadLetters(workspace.workspaceId, sequenceId);
   }
 }
 

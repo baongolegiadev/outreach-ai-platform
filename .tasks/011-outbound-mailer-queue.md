@@ -1,14 +1,14 @@
 ---
 id: '011'
 title: 'Outbound mailer: queue, SMTP/Gmail, retries, rate limits'
-status: 'todo'
+status: 'done'
 area: 'backend'
 agent: '@backend-developer'
 priority: 'normal'
 created_at: '2026-04-12'
 due_date: null
-started_at: null
-completed_at: null
+started_at: '2026-04-17'
+completed_at: '2026-04-17'
 prd_refs: ['FR-040', 'FR-041', 'FR-042', 'FR-043']
 blocks: ['012', '013', '016']
 blocked_by: ['004', '009']
@@ -20,13 +20,13 @@ Implement **asynchronous sending**: enqueue jobs from API, process via worker (N
 
 ## Acceptance Criteria
 
-- [ ] Sending path is non-blocking for HTTP callers (202/accepted pattern documented).
-- [ ] Adapter interface supports at least SMTP; second adapter stub acceptable if secrets absent in dev.
-- [ ] Rate limiter prevents burst beyond configured per identity.
-- [ ] Failures after retries surface in operator-visible log or table (dead-letter concept).
-- [ ] ADR or `ARCHITECTURE.md` updated with broker choice once implemented.
-- [ ] Relevant tests written and passing (unit + integration with fake SMTP if possible).
-- [ ] Relevant documentation updated.
+- [x] Sending path is non-blocking for HTTP callers (202/accepted pattern documented).
+- [x] Adapter interface supports at least SMTP; second adapter stub acceptable if secrets absent in dev.
+- [x] Rate limiter prevents burst beyond configured per identity.
+- [x] Failures after retries surface in operator-visible log or table (dead-letter concept).
+- [x] ADR or `ARCHITECTURE.md` updated with broker choice once implemented.
+- [x] Relevant tests written and passing (unit + integration with fake SMTP if possible).
+- [x] Relevant documentation updated.
 
 ## Technical Notes
 
@@ -37,3 +37,4 @@ Implement **asynchronous sending**: enqueue jobs from API, process via worker (N
 | Date       | Agent / Human | Event        |
 | ---------- | ------------- | ------------ |
 | 2026-04-12 | human         | Task created |
+| 2026-04-17 | agent         | Implemented DB-backed queue + worker, adapters, retries/rate limits, dead-letter endpoints, and docs/tests updates |

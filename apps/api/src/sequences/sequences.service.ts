@@ -4,6 +4,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { OutboundMailerService } from '../outbound-mailer/outbound-mailer.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateSequenceDto,
@@ -68,7 +69,10 @@ export type EnrollLeadsResponse = {
 
 @Injectable()
 export class SequencesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly outboundMailerService: OutboundMailerService,
+  ) {}
 
   async createSequence(
     workspaceId: string,
@@ -342,6 +346,24 @@ export class SequencesService {
       },
       progress,
     };
+  }
+
+  async dispatchSequence(
+    workspaceId: string,
+    sequenceId: string,
+    inboxIdentity: string,
+  ): Promise<{ accepted: true; sequenceId: string; queuedJobs: number }> {
+    this.assertSequenceId(sequenceId);
+    return this.outboundMailerService.dispatchSequence(
+      workspaceId,
+      sequenceId,
+      inboxIdentity,
+    );
+  }
+
+  async listDeadLetters(workspaceId: string, sequenceId: string) {
+    this.assertSequenceId(sequenceId);
+    return this.outboundMailerService.listDeadLetters(workspaceId, sequenceId);
   }
 
   private parseCreateSequence(input: unknown): CreateSequenceDto {

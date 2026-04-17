@@ -15,6 +15,7 @@ Read by: All agents before proposing stack changes.
 | ID      | Title                                                                       | Status   | Date       |
 | ------- | --------------------------------------------------------------------------- | -------- | ---------- |
 | ADR-001 | Initial platform stack (Next.js, NestJS, PostgreSQL/Supabase, Prisma, pnpm) | Accepted | 2026-04-12 |
+| ADR-002 | Outbound mail queue implementation (DB-backed worker in Nest API process)   | Accepted | 2026-04-17 |
 
 ---
 
@@ -43,6 +44,33 @@ Adopt **Next.js (App Router, TypeScript)** for the web app, **NestJS (TypeScript
 - **Positive**: Clean boundaries for async mail workers; Nest modules map well to bounded contexts; Prisma aids safe schema iteration; hosting matches each runtime’s strengths.
 - **Negative**: Two deployables and CORS/auth cookie details to manage; more initial scaffolding than a monolithic Next app.
 - **Neutral**: Open choices (queue broker, reply ingestion) remain in PRD open questions and future ADRs.
+
+---
+
+## ADR-002: Outbound mail queue implementation (DB-backed worker in Nest API process)
+
+**Date**: 2026-04-17  
+**Status**: Accepted  
+**Deciders**: Engineering implementation for task 011
+
+### Context
+
+Task 011 requires asynchronous outbound sending with a non-blocking HTTP path, retries with exponential backoff, per-identity rate limiting, and dead-letter visibility. A queueing solution was not yet pinned in accepted ADRs, and the product owner question around Redis/BullMQ remained open.
+
+### Options Considered
+
+1. **BullMQ + Redis**: mature queue semantics and horizontal worker scaling; requires Redis provisioning/operations now.
+2. **Database-backed queue in existing PostgreSQL + in-process worker**: no new infrastructure, simpler local/dev rollout, leverages Prisma transactions.
+
+### Decision
+
+Use a **database-backed outbound queue** implemented with Prisma models (`OutboundMessageJob`, `OutboundMessageAttempt`, `OutboundMessageEvent`) and an **in-process Nest worker** (`OutboundMailerWorker`) that polls due jobs. Keep adapter-based delivery (`SMTP` + `GMAIL_STUB`) so broker/runtime can be swapped later without changing send orchestration contracts.
+
+### Consequences
+
+- **Positive**: Fastest path to production behavior with retries, rate limiting, and dead-letter persistence using current stack only.
+- **Negative**: Throughput and fault isolation are lower than a dedicated broker/worker deployment; polling interval trades latency vs DB load.
+- **Neutral**: If volume grows, we can supersede this ADR with BullMQ/Redis while preserving API contracts and adapter interfaces.
 
 ---
 

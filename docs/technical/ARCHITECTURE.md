@@ -17,7 +17,7 @@ For design tokens and UX flows see DESIGN_SYSTEM.md (@ui-ux-designer).
 
 Outreach AI Platform is a **pnpm monorepo** with a **Next.js** browser client and a **NestJS** API backed by **PostgreSQL** (hosted on **Supabase**). The Nest API owns authentication (JWT), workspace-scoped business logic, queues for outbound email, and webhooks/polling endpoints for reply and tracking events. The Next app provides the authenticated UI (dashboard, leads, sequences, pipeline, analytics) and calls the API over HTTPS.
 
-Key architectural choices: **clear separation** between web (Vercel) and API (Railway), **Prisma** as the single ORM for relational data, and **asynchronous workers** for mail delivery and retries (specific broker TBD—see `DECISIONS.md` and PRD open questions).
+Key architectural choices: **clear separation** between web (Vercel) and API (Railway), **Prisma** as the single ORM for relational data, and a **database-backed asynchronous worker** for mail delivery/retries (see ADR-002 in `DECISIONS.md`).
 
 ```
   Browser (Next.js on Vercel)
@@ -26,7 +26,7 @@ Key architectural choices: **clear separation** between web (Vercel) and API (Ra
      NestJS API (Railway)
        │        │
        ▼        ├──────────► PostgreSQL (Supabase)
-   Workers            Redis / queue [TBD]
+   Workers      PostgreSQL-backed queue
        │
        ├──────────► SMTP / Gmail outbound
        └──────────► Inbound reply channel [TBD]
@@ -112,10 +112,11 @@ NestJS modules align to domains: **auth**, **workspaces**, **leads**, **sequence
 
 ### Outbound send (summary)
 
-1. Client requests enqueue/enroll send job.
-2. API persists outbox/job row and pushes to queue.
-3. Worker sends via SMTP/Gmail, records result, retries on transient failure.
-4. Activity + analytics updated from worker events.
+1. Client requests sequence dispatch; API returns `202 Accepted` immediately.
+2. API persists `OutboundMessageJob` rows plus queue events.
+3. In-process Nest worker polls due jobs, enforces per-inbox rate limit, and delivers via SMTP or Gmail stub adapter.
+4. Worker writes attempts/events, applies exponential retry backoff, and dead-letters failed jobs after retry budget is exhausted.
+5. Sequence enrollment progress updates (`currentStep`, `nextSendAt`, completion state) are persisted from worker outcomes.
 
 Detailed diagrams belong here as implementation lands.
 
@@ -153,4 +154,4 @@ Canonical **design system** lives in [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) (@
 | Item                               | Impact                 | Plan                        |
 | ---------------------------------- | ---------------------- | --------------------------- |
 | Reply detection approach undecided | Blocks full FR-050–052 | Resolve in ADR + spike task |
-| Queue broker not pinned            | Worker reliability     | ADR + infra task            |
+| In-process worker shares API runtime | Worker isolation/scaling | Move worker to dedicated process when throughput requires |

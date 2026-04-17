@@ -7,8 +7,19 @@ set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://localhost:3001/v1}"
 WORKSPACE_ID="${WORKSPACE_ID:-}"
+WORKSPACE_FILE="${WORKSPACE_FILE:-scripts/workspace.json}"
 LOGIN_FILE="${LOGIN_FILE:-scripts/login.json}"
 CSV_FILE="${CSV_FILE:-scripts/sample-leads.csv}"
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required. Install it in WSL:"
+  echo "  sudo apt-get update && sudo apt-get install -y jq"
+  exit 1
+fi
+
+if [[ -z "$WORKSPACE_ID" && -f "$WORKSPACE_FILE" ]]; then
+  WORKSPACE_ID="$(jq -r '.workspaceId // empty' "$WORKSPACE_FILE")"
+fi
 
 if [[ -z "$WORKSPACE_ID" ]]; then
   echo "Missing WORKSPACE_ID."
@@ -24,12 +35,6 @@ fi
 
 if [[ ! -f "$CSV_FILE" ]]; then
   echo "CSV file not found: $CSV_FILE"
-  exit 1
-fi
-
-if ! command -v jq >/dev/null 2>&1; then
-  echo "jq is required. Install it in WSL:"
-  echo "  sudo apt-get update && sudo apt-get install -y jq"
   exit 1
 fi
 

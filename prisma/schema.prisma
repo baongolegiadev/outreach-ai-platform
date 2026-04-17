@@ -18,6 +18,25 @@ enum SequenceEnrollmentStatus {
   STOPPED
 }
 
+enum OutboundMessageStatus {
+  QUEUED
+  PROCESSING
+  SENT
+  DEAD_LETTER
+}
+
+enum OutboundMessageProvider {
+  SMTP
+  GMAIL_STUB
+}
+
+enum OutboundMessageEventType {
+  QUEUED
+  SENT
+  RETRY_SCHEDULED
+  DEAD_LETTER
+}
+
 model User {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email       String       @unique
@@ -39,6 +58,7 @@ model Workspace {
   sequences   Sequence[]
   sequenceSteps       SequenceStep[]
   sequenceEnrollments SequenceEnrollment[]
+  outboundMessageJobs OutboundMessageJob[]
 }
 
 model Membership {
@@ -80,6 +100,7 @@ model Sequence {
   workspace   Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   steps       SequenceStep[]
   enrollments SequenceEnrollment[]
+  outboundMessageJobs OutboundMessageJob[]
 
   @@index([workspaceId, createdAt])
   @@index([workspaceId, name])
@@ -98,6 +119,7 @@ model SequenceStep {
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   sequence  Sequence  @relation(fields: [sequenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  outboundMessageJobs OutboundMessageJob[]
 
   @@unique([sequenceId, stepOrder])
   @@index([workspaceId, sequenceId])
@@ -120,11 +142,73 @@ model SequenceEnrollment {
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   sequence  Sequence  @relation(fields: [sequenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   lead      Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  outboundMessageJobs OutboundMessageJob[]
 
   @@unique([sequenceId, leadId])
   @@index([workspaceId, status, nextSendAt])
   @@index([workspaceId, sequenceId, status])
   @@index([workspaceId, leadId])
+}
+
+model OutboundMessageJob {
+  id                   String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId          String                  @db.Uuid
+  sequenceId           String                  @db.Uuid
+  sequenceStepId       String                  @db.Uuid
+  sequenceEnrollmentId String                  @db.Uuid
+  leadId               String                  @db.Uuid
+  provider             OutboundMessageProvider @default(SMTP)
+  inboxIdentity        String
+  toEmail              String
+  subject              String
+  htmlBody             String
+  status               OutboundMessageStatus   @default(QUEUED)
+  attemptCount         Int                     @default(0)
+  maxAttempts          Int                     @default(3)
+  nextAttemptAt        DateTime                @default(now()) @db.Timestamptz(6)
+  sentAt               DateTime?               @db.Timestamptz(6)
+  deadLetteredAt       DateTime?               @db.Timestamptz(6)
+  lastError            String?
+  createdAt            DateTime                @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime                @updatedAt @db.Timestamptz(6)
+
+  workspace          Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequence           Sequence             @relation(fields: [sequenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequenceStep       SequenceStep         @relation(fields: [sequenceStepId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequenceEnrollment SequenceEnrollment   @relation(fields: [sequenceEnrollmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  attempts           OutboundMessageAttempt[]
+  events             OutboundMessageEvent[]
+
+  @@unique([sequenceEnrollmentId, sequenceStepId])
+  @@index([workspaceId, status, nextAttemptAt])
+  @@index([inboxIdentity, status, nextAttemptAt])
+}
+
+model OutboundMessageAttempt {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outboundMessageId String   @db.Uuid
+  attemptNumber    Int
+  success          Boolean
+  errorMessage     String?
+  transientError   Boolean
+  providerMessageId String?
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+
+  outboundMessage OutboundMessageJob @relation(fields: [outboundMessageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([outboundMessageId, createdAt])
+}
+
+model OutboundMessageEvent {
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outboundMessageId String                   @db.Uuid
+  type              OutboundMessageEventType
+  payload           Json?
+  createdAt         DateTime                 @default(now()) @db.Timestamptz(6)
+
+  outboundMessage OutboundMessageJob @relation(fields: [outboundMessageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([outboundMessageId, createdAt])
 }
 
 model Tag {

@@ -9,6 +9,15 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3001),
   JWT_SECRET: z.string().min(32),
   JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().positive().default(900),
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: z.coerce.number().int().positive().optional(),
+  SMTP_USER: z.string().min(1).optional(),
+  SMTP_PASS: z.string().min(1).optional(),
+  SMTP_SECURE: z.coerce.boolean().default(false),
+  OUTBOUND_DEFAULT_FROM_EMAIL: z.string().email().default('no-reply@example.com'),
+  OUTBOUND_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(30),
+  OUTBOUND_RETRY_BASE_SECONDS: z.coerce.number().int().positive().default(30),
+  OUTBOUND_WORKER_POLL_MS: z.coerce.number().int().positive().default(5000),
 });
 
 export type Env = z.infer<typeof envSchema>;

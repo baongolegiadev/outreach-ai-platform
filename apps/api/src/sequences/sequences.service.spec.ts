@@ -2,6 +2,11 @@ import { NotFoundException, UnprocessableEntityException } from '@nestjs/common'
 import { SequencesService } from './sequences.service';
 
 describe('SequencesService', () => {
+  const createOutboundMailerMock = () => ({
+    dispatchSequence: jest.fn(),
+    listDeadLetters: jest.fn(),
+  });
+
   const workspaceId = '7f65cfc8-1ca9-470f-93bf-6c0d969cccf9';
   const sequenceId = '4d3f2207-bd2d-426e-bb5f-c42f161f73f3';
   const stepId = '6c909f1c-7a28-45e4-b243-2e8f93f92fc8';
@@ -37,7 +42,8 @@ describe('SequencesService', () => {
 
   it('creates a sequence', async () => {
     const prismaMock = createPrismaMock();
-    const service = new SequencesService(prismaMock as never);
+    const outboundMock = createOutboundMailerMock();
+    const service = new SequencesService(prismaMock as never, outboundMock as never);
 
     prismaMock.sequence.create.mockResolvedValue({
       id: sequenceId,
@@ -53,7 +59,8 @@ describe('SequencesService', () => {
 
   it('rejects step create with zero delay for non-first step', async () => {
     const prismaMock = createPrismaMock();
-    const service = new SequencesService(prismaMock as never);
+    const outboundMock = createOutboundMailerMock();
+    const service = new SequencesService(prismaMock as never, outboundMock as never);
 
     prismaMock.sequence.findFirst.mockResolvedValue({ id: sequenceId });
 
@@ -69,7 +76,8 @@ describe('SequencesService', () => {
 
   it('returns not found when enrolling to missing sequence', async () => {
     const prismaMock = createPrismaMock();
-    const service = new SequencesService(prismaMock as never);
+    const outboundMock = createOutboundMailerMock();
+    const service = new SequencesService(prismaMock as never, outboundMock as never);
 
     prismaMock.sequence.findFirst.mockResolvedValue(null);
 
@@ -80,7 +88,8 @@ describe('SequencesService', () => {
 
   it('enrolls leads in batches with progress reporting', async () => {
     const prismaMock = createPrismaMock();
-    const service = new SequencesService(prismaMock as never);
+    const outboundMock = createOutboundMailerMock();
+    const service = new SequencesService(prismaMock as never, outboundMock as never);
 
     prismaMock.sequence.findFirst.mockResolvedValue({ id: sequenceId });
     prismaMock.lead.findMany.mockResolvedValue([
@@ -108,6 +117,30 @@ describe('SequencesService', () => {
     expect(result.totals.created).toBe(2);
     expect(result.totals.skippedAlreadyEnrolled).toBe(1);
     expect(result.progress.length).toBe(2);
+  });
+
+  it('dispatches a sequence asynchronously', async () => {
+    const prismaMock = createPrismaMock();
+    const outboundMock = createOutboundMailerMock();
+    const service = new SequencesService(prismaMock as never, outboundMock as never);
+    outboundMock.dispatchSequence.mockResolvedValue({
+      accepted: true,
+      sequenceId,
+      queuedJobs: 3,
+    });
+
+    const result = await service.dispatchSequence(
+      workspaceId,
+      sequenceId,
+      'sales@acme.io',
+    );
+
+    expect(result.accepted).toBe(true);
+    expect(outboundMock.dispatchSequence).toHaveBeenCalledWith(
+      workspaceId,
+      sequenceId,
+      'sales@acme.io',
+    );
   });
 });
 

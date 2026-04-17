@@ -720,6 +720,51 @@ Current implementation enforces a small file-size limit and parses the CSV in-me
 
 ---
 
+#### [POST] /sequences/:sequenceId/dispatch
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Queue due sequence messages asynchronously and return immediately.
+
+**Behavior**:
+
+- Returns `202 Accepted` (non-blocking enqueue path).
+- Creates queued outbound jobs for active enrollments whose `nextSendAt` is due (or unset).
+- Processing happens in background worker with per-inbox rate limits and retry/backoff policy.
+
+**Response 202**:
+
+```json
+{
+  "accepted": true,
+  "sequenceId": "string - sequence UUID",
+  "queuedJobs": 12
+}
+```
+
+#### [GET] /sequences/:sequenceId/dead-letters
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: List dead-lettered outbound jobs for operator visibility.
+
+**Response 200**:
+
+```json
+[
+  {
+    "id": "string - job UUID",
+    "toEmail": "string - recipient address",
+    "subject": "string",
+    "attemptCount": 3,
+    "lastError": "string",
+    "deadLetteredAt": "string - ISO datetime"
+  }
+]
+```
+
+---
+
 ## Changelog
 
 | Date       | Change                                                                        |
@@ -729,3 +774,4 @@ Current implementation enforces a small file-size limit and parses the CSV in-me
 | 2026-04-13 | Added auth endpoints, JWT/workspace strategy, and protected workspace samples |
 | 2026-04-15 | Added workspace-scoped leads CRUD endpoints with search/filter/tag support    |
 | 2026-04-17 | Added sequences CRUD, steps, and enrollment endpoints                         |
+| 2026-04-17 | Added async sequence dispatch (`202`) and dead-letter visibility endpoints    |
