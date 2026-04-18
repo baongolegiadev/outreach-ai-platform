@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, RequestMethod } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
@@ -12,6 +12,9 @@ describe('HealthController (e2e)', () => {
     process.env.DATABASE_URL ??=
       'postgresql://postgres:postgres@localhost:5432/outreach_test';
     process.env.WEB_ORIGIN ??= 'http://localhost:3000';
+    process.env.JWT_SECRET ??=
+      '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+    process.env.API_PUBLIC_URL ??= 'http://localhost:3001';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -19,7 +22,10 @@ describe('HealthController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('v1', {
-      exclude: ['health'],
+      exclude: [
+        'health',
+        { path: 'track/opens/:token', method: RequestMethod.GET },
+      ],
     });
     app.useGlobalFilters(new GlobalExceptionFilter());
     await app.init();
@@ -30,6 +36,14 @@ describe('HealthController (e2e)', () => {
       .get('/health')
       .expect(200)
       .expect({ status: 'ok' });
+  });
+
+  it('/track/opens/:token (GET) returns a transparent GIF', () => {
+    return request(app.getHttpServer())
+      .get('/track/opens/not-a-real-token')
+      .expect(200)
+      .expect('Content-Type', /image\/gif/)
+      .expect('Cache-Control', /no-store/);
   });
 
   afterEach(async () => {

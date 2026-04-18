@@ -1,8 +1,10 @@
+import { randomBytes } from 'node:crypto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   OutboundMessageEventType,
   OutboundMessageProvider,
   OutboundMessageStatus,
+  Prisma,
   SequenceEnrollmentStatus,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -79,34 +81,35 @@ export class OutboundMailerService {
       return { accepted: true, sequenceId, queuedJobs: 0 };
     }
 
-    const createResult = await this.prisma.outboundMessageJob.createMany({
-      data: toQueue,
-      skipDuplicates: true,
-    });
-
-    if (createResult.count > 0) {
-      const queuedJobs = await this.prisma.outboundMessageJob.findMany({
-        where: {
-          workspaceId,
-          sequenceId,
-          status: OutboundMessageStatus.QUEUED,
-          sequenceEnrollmentId: {
-            in: toQueue.map((item) => item.sequenceEnrollmentId),
+    const createdIds: string[] = [];
+    for (const item of toQueue) {
+      try {
+        const job = await this.prisma.outboundMessageJob.create({
+          data: {
+            ...item,
+            openTrackingToken: randomBytes(24).toString('hex'),
           },
-        },
-        select: { id: true },
-      });
+        });
+        createdIds.push(job.id);
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+          continue;
+        }
+        throw error;
+      }
+    }
 
+    if (createdIds.length > 0) {
       await this.prisma.outboundMessageEvent.createMany({
-        data: queuedJobs.map((job) => ({
-          outboundMessageId: job.id,
+        data: createdIds.map((outboundMessageId) => ({
+          outboundMessageId,
           type: OutboundMessageEventType.QUEUED,
           payload: { reason: 'manual_dispatch' },
         })),
       });
     }
 
-    return { accepted: true, sequenceId, queuedJobs: createResult.count };
+    return { accepted: true, sequenceId, queuedJobs: createdIds.length };
   }
 
   async listDeadLetters(workspaceId: string, sequenceId: string) {

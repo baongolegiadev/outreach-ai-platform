@@ -16,6 +16,7 @@ Read by: All agents before proposing stack changes.
 | ------- | --------------------------------------------------------------------------- | -------- | ---------- |
 | ADR-001 | Initial platform stack (Next.js, NestJS, PostgreSQL/Supabase, Prisma, pnpm) | Accepted | 2026-04-12 |
 | ADR-002 | Outbound mail queue implementation (DB-backed worker in Nest API process)   | Accepted | 2026-04-17 |
+| ADR-003 | Email open tracking v1 (pixel + first-open persistence)                         | Accepted | 2026-04-18 |
 
 ---
 
@@ -71,6 +72,34 @@ Use a **database-backed outbound queue** implemented with Prisma models (`Outbou
 - **Positive**: Fastest path to production behavior with retries, rate limiting, and dead-letter persistence using current stack only.
 - **Negative**: Throughput and fault isolation are lower than a dedicated broker/worker deployment; polling interval trades latency vs DB load.
 - **Neutral**: If volume grows, we can supersede this ADR with BullMQ/Redis while preserving API contracts and adapter interfaces.
+
+---
+
+## ADR-003: Email open tracking v1 (pixel + first-open persistence)
+
+**Date**: 2026-04-18  
+**Status**: Accepted  
+**Deciders**: Engineering (task #012)
+
+### Context
+
+FR-061 / FR-080 require recording email opens for analytics and activity history. The PRD lists an open question: pixel-based opens vs provider-native events, and privacy blockers.
+
+### Options Considered
+
+1. **ESP / provider webhooks only**: fewer false positives from scanners; depends on outbound provider capabilities and is weak for generic SMTP.
+2. **Tracking pixel only**: works with current SMTP adapter; well-understood limitations (image blocking, prefetch, MPP).
+3. **Hybrid from day one**: more accurate but more integration work before v1 ships.
+
+### Decision
+
+Ship **pixel-based open tracking** in v1: random token per `OutboundMessageJob`, public `GET /track/opens/:token` returning a transparent GIF, **first open only** persisted (`openedAt` + `OutboundMessageEvent.OPENED`). Document limitations in `docs/technical/OPEN_TRACKING.md`. Leave ESP-native ingestion for a follow-up if product prioritizes it.
+
+### Consequences
+
+- **Positive**: Works with existing queue and SMTP path; idempotent first-open semantics keep analytics simple.
+- **Negative**: Opens are approximate (bots, prefetch, privacy tools); not a forensic read receipt.
+- **Neutral**: Provider events can be added later without removing the pixel, if we need dual sourcing.
 
 ---
 

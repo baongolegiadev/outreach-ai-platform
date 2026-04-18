@@ -8,7 +8,7 @@ Owner: @database-expert
 > **Engine**: PostgreSQL (Supabase-managed)  
 > **ORM**: Prisma  
 > **Connection**: `DATABASE_URL`  
-> **Last updated**: 2026-04-13
+> **Last updated**: 2026-04-18
 
 ---
 
@@ -242,6 +242,7 @@ Workspace ──< SequenceEnrollment >── Lead
 | ------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `202604130001_init_core_schema` | 2026-04-13 | Added initial Prisma core schema for users, workspaces, memberships, leads, tags, and lead-tag join table. Includes FK cascades, lead uniqueness on `(workspaceId, email)`, and workspace-scoped indexes for lead/tag filtering. |
 | `202604170001_sequences_steps_enrollments` | 2026-04-17 | Added sequences, ordered steps, and enrollments (with status + queue scanning indexes). |
+| `20260418120000_open_tracking` | 2026-04-18 | Added `OutboundMessageJob.openTrackingToken` (unique), `openedAt`, enum value `OutboundMessageEventType.OPENED`, and backfilled tokens for existing jobs. |
 
 Rollback companion: `prisma/migrations/202604130001_init_core_schema/rollback.sql` (destructive, local/dev recovery only).
 Rollback companion: `prisma/migrations/202604170001_sequences_steps_enrollments/rollback.sql` (destructive, local/dev recovery only).

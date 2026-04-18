@@ -19,6 +19,8 @@ const booleanFromEnv = z.preprocess((value) => {
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   WEB_ORIGIN: z.string().url(),
+  /** Absolute base URL of the API as reachable from email clients (no trailing slash). Used for open-tracking pixel URLs. */
+  API_PUBLIC_URL: z.string().url(),
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),

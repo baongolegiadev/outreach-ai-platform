@@ -10,7 +10,7 @@ Update trigger: Endpoints added/changed/removed
 > **Base URL (local)**: `http://localhost:3001/v1`  
 > **Authentication**: `Authorization: Bearer <JWT>`  
 > **Content-Type**: `application/json`  
-> **Last updated**: 2026-04-13
+> **Last updated**: 2026-04-18
 
 Concrete route list, request/response schemas, and error codes will be appended as endpoints ship (start with **task #004** auth and **#006** leads).
 
@@ -765,6 +765,25 @@ Current implementation enforces a small file-size limit and parses the CSV in-me
 
 ---
 
+#### [GET] /track/opens/:token
+
+**Auth required**: No  
+**Global prefix**: This route is **outside** `/v1` so pixel URLs stay short and stable in email clients.  
+**Description**: Serves a 1×1 transparent GIF and, on the **first** successful load for a valid token, records an open on the linked `OutboundMessageJob` (`openedAt` timestamp + `OutboundMessageEvent` of type `OPENED`). Invalid, duplicate, or ineligible loads still return the same GIF (no error body) so clients cannot probe job existence from HTTP status alone.
+
+**Path parameters**:
+
+- `token` — opaque `openTrackingToken` issued when the outbound job was created (hex string).
+
+**Response 200**:
+
+- Body: binary transparent `image/gif`
+- Headers: `Content-Type: image/gif`, `Cache-Control: no-store`
+
+**Notes**: Privacy, bot/prefetch behavior, and ESP-native alternatives are documented in [`OPEN_TRACKING.md`](./OPEN_TRACKING.md).
+
+---
+
 ## Changelog
 
 | Date       | Change                                                                        |
@@ -775,3 +794,4 @@ Current implementation enforces a small file-size limit and parses the CSV in-me
 | 2026-04-15 | Added workspace-scoped leads CRUD endpoints with search/filter/tag support    |
 | 2026-04-17 | Added sequences CRUD, steps, and enrollment endpoints                         |
 | 2026-04-17 | Added async sequence dispatch (`202`) and dead-letter visibility endpoints    |
+| 2026-04-18 | Documented public open-tracking pixel endpoint `GET /track/opens/:token`       |

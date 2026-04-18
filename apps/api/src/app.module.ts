@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProtectedController } from './protected/protected.controller';
 import { LeadsModule } from './leads/leads.module';
 import { SequencesModule } from './sequences/sequences.module';
+import { OpenTrackingModule } from './open-tracking/open-tracking.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SequencesModule } from './sequences/sequences.module';
     AuthModule,
     LeadsModule,
     SequencesModule,
+    OpenTrackingModule,
   ],
   controllers: [HealthController, ProtectedController],
   providers: [],

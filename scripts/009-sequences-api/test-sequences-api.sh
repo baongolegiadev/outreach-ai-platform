@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ./scripts/test-sequences-api.sh
-# ./scripts/test-leads-csv-import.sh
-# AUTO_CREATE_LEAD=1 ./scripts/test-outbound-mailer-queue.sh
+# Task #009 — Sequences API. Fixtures: scripts/_shared/
+#
+#   scripts/009-sequences-api/test-sequences-api.sh
+#   WORKSPACE_ID="<uuid>" scripts/009-sequences-api/test-sequences-api.sh
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+SHARED="$ROOT/scripts/_shared"
 
 BASE_URL="${BASE_URL:-http://localhost:3001/v1}"
 WORKSPACE_ID="${WORKSPACE_ID:-}"
-WORKSPACE_FILE="${WORKSPACE_FILE:-scripts/workspace.json}"
-LOGIN_FILE="${LOGIN_FILE:-scripts/login.json}"
+WORKSPACE_FILE="${WORKSPACE_FILE:-$SHARED/workspace.json}"
+LOGIN_FILE="${LOGIN_FILE:-$SHARED/login.json}"
 
-SEQ_CREATE_FILE="${SEQ_CREATE_FILE:-scripts/sequence-create.json}"
-STEP_CREATE_FILE="${STEP_CREATE_FILE:-scripts/sequence-step-create.json}"
-ENROLL_FILE="${ENROLL_FILE:-scripts/sequence-enroll.json}"
+SEQ_CREATE_FILE="${SEQ_CREATE_FILE:-$SHARED/sequence-create.json}"
+STEP_CREATE_FILE="${STEP_CREATE_FILE:-$SHARED/sequence-step-create.json}"
+ENROLL_FILE="${ENROLL_FILE:-$SHARED/sequence-enroll.json}"
 AUTO_CREATE_LEAD="${AUTO_CREATE_LEAD:-0}"
-LEAD_CREATE_FILE="${LEAD_CREATE_FILE:-scripts/lead-create.json}"
+LEAD_CREATE_FILE="${LEAD_CREATE_FILE:-$SHARED/lead-create.json}"
 
 files=("$LOGIN_FILE" "$SEQ_CREATE_FILE" "$STEP_CREATE_FILE" "$ENROLL_FILE")
 if [[ "$AUTO_CREATE_LEAD" == "1" ]]; then
@@ -41,7 +46,7 @@ fi
 if [[ -z "$WORKSPACE_ID" ]]; then
   echo "Missing WORKSPACE_ID."
   echo "Example:"
-  echo "  WORKSPACE_ID='<uuid>' ./scripts/test-sequences-api.sh"
+  echo "  WORKSPACE_ID='<uuid>' scripts/009-sequences-api/test-sequences-api.sh"
   exit 1
 fi
 
@@ -120,4 +125,3 @@ curl -sS -X POST "$BASE_URL/sequences/$SEQUENCE_ID/enroll" "${auth_headers[@]}" 
 
 echo
 echo "Done."
-

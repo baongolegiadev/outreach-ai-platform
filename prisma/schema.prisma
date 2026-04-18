@@ -35,6 +35,7 @@ enum OutboundMessageEventType {
   SENT
   RETRY_SCHEDULED
   DEAD_LETTER
+  OPENED
 }
 
 model User {
@@ -169,6 +170,8 @@ model OutboundMessageJob {
   sentAt               DateTime?               @db.Timestamptz(6)
   deadLetteredAt       DateTime?               @db.Timestamptz(6)
   lastError            String?
+  openTrackingToken    String?                 @unique
+  openedAt             DateTime?               @db.Timestamptz(6)
   createdAt            DateTime                @default(now()) @db.Timestamptz(6)
   updatedAt            DateTime                @updatedAt @db.Timestamptz(6)
 

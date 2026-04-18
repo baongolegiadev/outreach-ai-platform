@@ -8,6 +8,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GmailStubAdapter } from './gmail-stub.adapter';
+import { buildOutboundHtmlWithOpenPixel } from './html-tracking.util';
 import { OutboundAdapterError, OutboundMailAdapter } from './outbound-mail.types';
 import { SmtpMailAdapter } from './smtp-mail.adapter';
 
@@ -20,6 +21,7 @@ export class OutboundMailerWorker implements OnModuleInit, OnModuleDestroy {
   private readonly ratePerMinute: number;
   private readonly retryBaseSeconds: number;
   private readonly defaultFrom: string;
+  private readonly publicApiBaseUrl: string;
   private readonly adapters: Map<OutboundMessageProvider, OutboundMailAdapter>;
 
   constructor(
@@ -33,6 +35,7 @@ export class OutboundMailerWorker implements OnModuleInit, OnModuleDestroy {
     this.retryBaseSeconds = config.get<number>('OUTBOUND_RETRY_BASE_SECONDS') ?? 30;
     this.defaultFrom =
       config.get<string>('OUTBOUND_DEFAULT_FROM_EMAIL') ?? 'no-reply@example.com';
+    this.publicApiBaseUrl = config.getOrThrow<string>('API_PUBLIC_URL');
     this.adapters = new Map<OutboundMessageProvider, OutboundMailAdapter>([
       [smtpAdapter.provider, smtpAdapter],
       [gmailStubAdapter.provider, gmailStubAdapter],
@@ -115,11 +118,17 @@ export class OutboundMailerWorker implements OnModuleInit, OnModuleDestroy {
         throw new OutboundAdapterError(`Adapter ${job.provider} not configured`, false);
       }
 
+      const htmlBody = buildOutboundHtmlWithOpenPixel(
+        job.htmlBody,
+        job.openTrackingToken,
+        this.publicApiBaseUrl,
+      );
+
       const result = await adapter.send({
         from: this.defaultFrom,
         to: job.toEmail,
         subject: job.subject,
-        html: job.htmlBody,
+        html: htmlBody,
       });
 
       await this.prisma.$transaction(async (tx) => {

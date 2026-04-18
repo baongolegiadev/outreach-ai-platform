@@ -108,7 +108,7 @@ CLAUDE.md              # Agent instructions
 | `JWT_EXPIRES_IN`                                      | No                 | Token TTL (e.g. `7d`) — default chosen at implementation        |
 | `NEXT_PUBLIC_API_URL`                                 | Yes                | Browser-facing Nest API base URL (e.g. `http://localhost:3001`) |
 | `WEB_ORIGIN`                                          | Yes (prod)         | Allowed browser origin for CORS (e.g. Vercel URL)               |
-| `API_PUBLIC_URL`                                      | Yes (prod)         | Public base URL of the Nest API (webhooks, links)               |
+| `API_PUBLIC_URL`                                      | Yes                | Public base URL of the Nest API (open-tracking pixel, webhooks, links) |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | When using SMTP    | Outbound mail transport                                         |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`           | If using Gmail API | OAuth app for sending (v1 scope TBD in tasks)                   |
 | `REDIS_URL`                                           | When queue enabled | BullMQ / rate-limit store                                       |

@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# WORKSPACE_ID="6c5f6ef6-bbb7-4968-a63f-17faa81fff50" AUTO_CREATE_LEAD=1 ./scripts/test-outbound-mailer-queue.sh
+# Task #011 — Outbound mailer queue. Fixtures: scripts/_shared/
+#
+#   scripts/011-outbound-mailer/test-queue.sh
+#   WORKSPACE_ID="<uuid>" AUTO_CREATE_LEAD=1 scripts/011-outbound-mailer/test-queue.sh
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+SHARED="$ROOT/scripts/_shared"
 
 BASE_URL="${BASE_URL:-http://localhost:3001/v1}"
 WORKSPACE_ID="${WORKSPACE_ID:-}"
-WORKSPACE_FILE="${WORKSPACE_FILE:-scripts/workspace.json}"
-LOGIN_FILE="${LOGIN_FILE:-scripts/login.json}"
+WORKSPACE_FILE="${WORKSPACE_FILE:-$SHARED/workspace.json}"
+LOGIN_FILE="${LOGIN_FILE:-$SHARED/login.json}"
 
-SEQ_CREATE_FILE="${SEQ_CREATE_FILE:-scripts/sequence-create.json}"
-STEP_CREATE_FILE="${STEP_CREATE_FILE:-scripts/sequence-step-create.json}"
-ENROLL_FILE="${ENROLL_FILE:-scripts/sequence-enroll.json}"
+SEQ_CREATE_FILE="${SEQ_CREATE_FILE:-$SHARED/sequence-create.json}"
+STEP_CREATE_FILE="${STEP_CREATE_FILE:-$SHARED/sequence-step-create.json}"
+ENROLL_FILE="${ENROLL_FILE:-$SHARED/sequence-enroll.json}"
 AUTO_CREATE_LEAD="${AUTO_CREATE_LEAD:-1}"
-LEAD_CREATE_FILE="${LEAD_CREATE_FILE:-scripts/lead-create.json}"
+LEAD_CREATE_FILE="${LEAD_CREATE_FILE:-$SHARED/lead-create.json}"
 
 if [[ -z "$WORKSPACE_ID" && -f "$WORKSPACE_FILE" ]]; then
   WORKSPACE_ID="$(jq -r '.workspaceId // empty' "$WORKSPACE_FILE")"
@@ -21,7 +28,7 @@ fi
 if [[ -z "$WORKSPACE_ID" ]]; then
   echo "Missing WORKSPACE_ID."
   echo "Example:"
-  echo "  WORKSPACE_ID='<uuid>' AUTO_CREATE_LEAD=1 ./scripts/test-outbound-mailer-queue.sh"
+  echo "  WORKSPACE_ID='<uuid>' AUTO_CREATE_LEAD=1 scripts/011-outbound-mailer/test-queue.sh"
   exit 1
 fi
 

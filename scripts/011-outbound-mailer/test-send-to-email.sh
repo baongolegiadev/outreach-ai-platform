@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Example:
-# TARGET_EMAIL="nlgbsw@gmail.com" ./scripts/test-send-to-email.sh
+# Task #011 — helper: tạo sequence tối thiểu + dispatch tới một email (Mailtrap / SMTP test).
+#
+#   TARGET_EMAIL="you@example.com" scripts/011-outbound-mailer/test-send-to-email.sh
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+SHARED="$ROOT/scripts/_shared"
 
 BASE_URL="${BASE_URL:-http://localhost:3001/v1}"
 WORKSPACE_ID="${WORKSPACE_ID:-}"
-WORKSPACE_FILE="${WORKSPACE_FILE:-scripts/workspace.json}"
-LOGIN_FILE="${LOGIN_FILE:-scripts/login.json}"
+WORKSPACE_FILE="${WORKSPACE_FILE:-$SHARED/workspace.json}"
+LOGIN_FILE="${LOGIN_FILE:-$SHARED/login.json}"
 TARGET_EMAIL="${TARGET_EMAIL:-nlgbsw@gmail.com}"
 TARGET_NAME="${TARGET_NAME:-Manual Test Lead}"
 TARGET_COMPANY="${TARGET_COMPANY:-Personal}"
@@ -24,7 +29,7 @@ if [[ -z "$WORKSPACE_ID" && -f "$WORKSPACE_FILE" ]]; then
 fi
 
 if [[ -z "$WORKSPACE_ID" ]]; then
-  echo "Missing WORKSPACE_ID (or scripts/workspace.json)."
+  echo "Missing WORKSPACE_ID (or scripts/_shared/workspace.json)."
   exit 1
 fi
 

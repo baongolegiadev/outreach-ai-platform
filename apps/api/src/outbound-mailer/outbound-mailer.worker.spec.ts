@@ -40,6 +40,10 @@ describe('OutboundMailerWorker', () => {
       if (key === 'OUTBOUND_DEFAULT_FROM_EMAIL') return 'sender@acme.io';
       return undefined;
     }),
+    getOrThrow: jest.fn((key: string) => {
+      if (key === 'API_PUBLIC_URL') return 'https://api.acme.test';
+      throw new Error(`missing ${key}`);
+    }),
   };
 
   it('reschedules when per-inbox rate limit is reached', async () => {

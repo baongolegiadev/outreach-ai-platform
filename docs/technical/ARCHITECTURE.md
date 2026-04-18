@@ -114,7 +114,7 @@ NestJS modules align to domains: **auth**, **workspaces**, **leads**, **sequence
 
 1. Client requests sequence dispatch; API returns `202 Accepted` immediately.
 2. API persists `OutboundMessageJob` rows plus queue events.
-3. In-process Nest worker polls due jobs, enforces per-inbox rate limit, and delivers via SMTP or Gmail stub adapter.
+3. In-process Nest worker polls due jobs, enforces per-inbox rate limit, and delivers via SMTP or Gmail stub adapter. Sent HTML embeds a 1×1 open-tracking pixel whose URL is built from `API_PUBLIC_URL`; image loads hit `GET /track/opens/:token` (public, no JWT) and record at most one open per job for analytics (see `OPEN_TRACKING.md`).
 4. Worker writes attempts/events, applies exponential retry backoff, and dead-letters failed jobs after retry budget is exhausted.
 5. Sequence enrollment progress updates (`currentStep`, `nextSendAt`, completion state) are persisted from worker outcomes.
 
