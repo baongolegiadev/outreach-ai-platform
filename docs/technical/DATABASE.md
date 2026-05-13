@@ -14,7 +14,7 @@ Owner: @database-expert
 
 ## Schema Overview
 
-Current core entities implemented in task `002-prisma-core-schema`: **User**, **Workspace**, **Membership** (user ↔ workspace + role), **Lead** (workspace-scoped), **Tag** (workspace-scoped), and **LeadTag** (M:N join between leads and tags).
+Current core entities implemented in task `002-prisma-core-schema`: **User**, **Workspace**, **Membership** (user ↔ workspace + role), **Lead** (workspace-scoped), **Tag** (workspace-scoped), and **LeadTag** (M:N join between leads and tags). Task **#013** adds **`Lead.replyStatus` / `repliedAt`** and **`ProcessedInboundReply`** for inbound dedupe.
 
 ```
 User ──< Membership >── Workspace
@@ -102,6 +102,8 @@ Workspace ──< SequenceEnrollment >── Lead
 | name        | text           | NOT NULL                                  | Lead name                             |
 | email       | text           | NOT NULL                                  | Lead email                            |
 | company     | text           | NULL                                      | Lead company                          |
+| replyStatus | enum           | NOT NULL, DEFAULT `NONE`                  | `NONE` or `REPLIED` (inbound webhook) |
+| repliedAt   | timestamptz(6) | NULL                                      | First reply recorded at               |
 | createdAt   | timestamptz(6) | NOT NULL, DEFAULT `CURRENT_TIMESTAMP`     | Record creation timestamp             |
 | updatedAt   | timestamptz(6) | NOT NULL                                  | Last update timestamp                 |
 
@@ -116,8 +118,26 @@ Workspace ──< SequenceEnrollment >── Lead
 
 - `workspaceId` -> `Workspace.id` (`ON DELETE CASCADE`, `ON UPDATE CASCADE`)
 - Referenced by `LeadTag.leadId` (`ON DELETE CASCADE`, `ON UPDATE CASCADE`)
+- Referenced by `ProcessedInboundReply.leadId` (`ON DELETE CASCADE`, `ON UPDATE CASCADE`)
 
 **Notes**: The `(workspaceId, email)` uniqueness rule guarantees no duplicate lead email within a tenant while allowing the same email across different workspaces.
+
+### ProcessedInboundReply
+
+**Purpose**: Deduplicate inbound reply webhooks when the upstream provides a stable message identifier (e.g. SMTP `Message-Id`).
+
+| Column            | Type           | Constraints                               | Description                |
+| ----------------- | -------------- | ----------------------------------------- | -------------------------- |
+| id                | uuid           | PK, NOT NULL, DEFAULT `gen_random_uuid()` | Primary key                |
+| workspaceId       | uuid           | NOT NULL, FK -> `Workspace.id`            | Tenant scope               |
+| externalMessageId | text           | NOT NULL                                  | Provider-supplied id       |
+| leadId            | uuid           | NOT NULL, FK -> `Lead.id`                 | Lead matched at ingest     |
+| createdAt         | timestamptz(6) | NOT NULL, DEFAULT `CURRENT_TIMESTAMP`     | First-seen timestamp       |
+
+**Indexes**:
+
+- `ProcessedInboundReply_workspaceId_externalMessageId_key` on `(workspaceId, externalMessageId)` — duplicate deliveries are ignored.
+- `ProcessedInboundReply_workspaceId_leadId_idx` on `(workspaceId, leadId)` — optional operator queries.
 
 ### Tag
 

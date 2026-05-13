@@ -105,6 +105,7 @@ CLAUDE.md              # Agent instructions
 | ----------------------------------------------------- | ------------------ | --------------------------------------------------------------- |
 | `DATABASE_URL`                                        | Yes                | PostgreSQL connection string (Supabase pooler or direct)        |
 | `JWT_SECRET`                                          | Yes                | Secret used to sign API JWTs                                    |
+| `INBOUND_REPLY_WEBHOOK_SECRET`                        | Yes                | Bearer secret for `POST /webhooks/inbound-replies` (reply ingestion) |
 | `JWT_EXPIRES_IN`                                      | No                 | Token TTL (e.g. `7d`) — default chosen at implementation        |
 | `NEXT_PUBLIC_API_URL`                                 | Yes                | Browser-facing Nest API base URL (e.g. `http://localhost:3001`) |
 | `WEB_ORIGIN`                                          | Yes (prod)         | Allowed browser origin for CORS (e.g. Vercel URL)               |

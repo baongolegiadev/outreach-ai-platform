@@ -8,7 +8,7 @@ For design tokens and UX flows see DESIGN_SYSTEM.md (@ui-ux-designer).
 
 # System Architecture
 
-> Last updated: 2026-04-15  
+> Last updated: 2026-05-13  
 > Version: 0.1.0
 
 ---
@@ -29,7 +29,7 @@ Key architectural choices: **clear separation** between web (Vercel) and API (Ra
    Workers      PostgreSQL-backed queue
        │
        ├──────────► SMTP / Gmail outbound
-       └──────────► Inbound reply channel [TBD]
+       └──────────► Inbound reply webhook (`POST /webhooks/inbound-replies`, shared secret)
 ```
 
 ---
@@ -153,5 +153,5 @@ Canonical **design system** lives in [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) (@
 
 | Item                               | Impact                 | Plan                        |
 | ---------------------------------- | ---------------------- | --------------------------- |
-| Reply detection approach undecided | Blocks full FR-050–052 | Resolve in ADR + spike task |
+| Reply detection approach | Was open for FR-050–052 | **ADR-004** — webhook v1 shipped; native Gmail/IMAP may supersede later |
 | In-process worker shares API runtime | Worker isolation/scaling | Move worker to dedicated process when throughput requires |

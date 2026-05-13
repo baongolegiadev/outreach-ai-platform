@@ -5,11 +5,15 @@ export interface LeadTag {
   name: string;
 }
 
+export type LeadReplyStatus = 'NONE' | 'REPLIED';
+
 export interface Lead {
   id: string;
   name: string;
   email: string;
   company: string | null;
+  replyStatus: LeadReplyStatus;
+  repliedAt: string | null;
   createdAt: string;
   updatedAt: string;
   tags: LeadTag[];
@@ -31,6 +35,7 @@ export interface LeadsQuery {
   search?: string;
   company?: string;
   tagIds?: string[];
+  replyStatus?: LeadReplyStatus;
   limit?: number;
   offset?: number;
 }
@@ -65,6 +70,9 @@ function toQueryString(query: LeadsQuery): string {
   }
   if (query.tagIds && query.tagIds.length > 0) {
     params.set('tagIds', query.tagIds.join(','));
+  }
+  if (query.replyStatus) {
+    params.set('replyStatus', query.replyStatus);
   }
   if (query.limit !== undefined) {
     params.set('limit', String(query.limit));

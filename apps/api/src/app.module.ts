@@ -8,6 +8,7 @@ import { ProtectedController } from './protected/protected.controller';
 import { LeadsModule } from './leads/leads.module';
 import { SequencesModule } from './sequences/sequences.module';
 import { OpenTrackingModule } from './open-tracking/open-tracking.module';
+import { InboundReplyModule } from './inbound-reply/inbound-reply.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { OpenTrackingModule } from './open-tracking/open-tracking.module';
     LeadsModule,
     SequencesModule,
     OpenTrackingModule,
+    InboundReplyModule,
   ],
   controllers: [HealthController, ProtectedController],
   providers: [],

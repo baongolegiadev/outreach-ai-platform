@@ -59,6 +59,7 @@ export const listLeadsSchema = z.object({
   search: z.string().trim().min(1).max(160).optional(),
   company: z.string().trim().min(1).max(160).optional(),
   tagIds: listTagIdsSchema,
+  replyStatus: z.enum(['NONE', 'REPLIED']).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(25),
   offset: z.coerce.number().int().min(0).default(0),
 });

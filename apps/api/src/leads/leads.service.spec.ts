@@ -1,4 +1,5 @@
 import { NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { LeadReplyStatus } from '@prisma/client';
 import { LeadsService } from './leads.service';
 
 describe('LeadsService', () => {
@@ -38,6 +39,8 @@ describe('LeadsService', () => {
       name: 'Jane Doe',
       email: 'jane@example.com',
       company: 'Acme',
+      replyStatus: LeadReplyStatus.NONE,
+      repliedAt: null,
       createdAt: new Date('2026-04-15T00:00:00.000Z'),
       updatedAt: new Date('2026-04-15T00:00:00.000Z'),
       tags: [{ tag: { id: tagId, name: 'ICP' } }],
@@ -85,6 +88,8 @@ describe('LeadsService', () => {
           name: 'Jane Doe',
           email: 'jane@example.com',
           company: null,
+          replyStatus: LeadReplyStatus.NONE,
+          repliedAt: null,
           createdAt: new Date('2026-04-15T00:00:00.000Z'),
           updatedAt: new Date('2026-04-15T00:00:00.000Z'),
           tags: [],

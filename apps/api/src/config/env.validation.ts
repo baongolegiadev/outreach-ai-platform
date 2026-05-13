@@ -26,6 +26,8 @@ const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().int().positive().default(3001),
   JWT_SECRET: z.string().min(32),
+  /** Shared secret for `POST /webhooks/inbound-replies` (Bearer token). */
+  INBOUND_REPLY_WEBHOOK_SECRET: z.string().min(32),
   JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().positive().default(900),
   SMTP_HOST: z.string().min(1).optional(),
   SMTP_PORT: z.coerce.number().int().positive().optional(),

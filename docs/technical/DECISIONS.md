@@ -17,6 +17,7 @@ Read by: All agents before proposing stack changes.
 | ADR-001 | Initial platform stack (Next.js, NestJS, PostgreSQL/Supabase, Prisma, pnpm) | Accepted | 2026-04-12 |
 | ADR-002 | Outbound mail queue implementation (DB-backed worker in Nest API process)   | Accepted | 2026-04-17 |
 | ADR-003 | Email open tracking v1 (pixel + first-open persistence)                         | Accepted | 2026-04-18 |
+| ADR-004 | Inbound reply detection v1 (shared-secret webhook + enrollment stop + status) | Accepted | 2026-05-13 |
 
 ---
 
@@ -100,6 +101,34 @@ Ship **pixel-based open tracking** in v1: random token per `OutboundMessageJob`,
 - **Positive**: Works with existing queue and SMTP path; idempotent first-open semantics keep analytics simple.
 - **Negative**: Opens are approximate (bots, prefetch, privacy tools); not a forensic read receipt.
 - **Neutral**: Provider events can be added later without removing the pixel, if we need dual sourcing.
+
+---
+
+## ADR-004: Inbound reply detection v1 (shared-secret webhook + enrollment stop + status)
+
+**Date**: 2026-05-13  
+**Status**: Accepted  
+**Deciders**: Engineering (task #013)
+
+### Context
+
+FR-050–FR-052 require detecting inbound replies, stopping active sequence enrollment, and persisting a per-lead reply status. The PRD still lists Gmail push vs IMAP vs third-party webhooks as an open product question; we need a v1 path that works with the current SMTP-first stack and avoids new infrastructure.
+
+### Options Considered
+
+1. **Gmail push / IMAP polling**: tight integration with a mailbox; heavy OAuth/IMAP operations and operational complexity for v1.
+2. **ESP third-party ingestion APIs**: depends on vendor contracts and payload shapes.
+3. **Authenticated HTTPS webhook** (`POST`) implemented in the Nest API, called by a future worker, forwarder, or external ESP when a reply is observed: one shared secret per deployment (or per environment), workspace + lead email in JSON, optional provider message id for dedupe.
+
+### Decision
+
+Ship **(3)** for v1: **`POST /webhooks/inbound-replies`** outside the `/v1` prefix, protected by **`Authorization: Bearer <INBOUND_REPLY_WEBHOOK_SECRET>`** (constant-time comparison). Payload includes `workspaceId`, `leadEmail`, and optional **`externalMessageId`** stored in **`ProcessedInboundReply`** with a unique constraint on `(workspaceId, externalMessageId)` so duplicate deliveries are no-ops. Inside a transaction: resolve the lead, insert dedupe row when applicable, **`updateMany`** enrollments from `ACTIVE` → `STOPPED`, and set **`Lead.replyStatus = REPLIED`** / **`repliedAt`** only when transitioning from `NONE` (idempotent). Pipeline/Kanban stage changes remain **out of scope** for this endpoint until task **#015** defines rules.
+
+### Consequences
+
+- **Positive**: No new brokers or mailboxes required; works with any upstream that can HTTP POST; duplicate-safe and race-tolerant for enrollment stops.
+- **Negative**: Operators must configure secret rotation and a bridge (script, Lambda, or provider rule) to call the webhook until native Gmail/IMAP ingestion exists.
+- **Neutral**: ADR can be superseded by a provider-native ADR while keeping the webhook as a compatibility shim.
 
 ---
 

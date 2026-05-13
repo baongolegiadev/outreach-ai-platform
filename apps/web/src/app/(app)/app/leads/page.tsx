@@ -18,7 +18,7 @@ import {
 } from '@/lib/leads-api';
 import { enrollLeads, listSequences, Sequence } from '@/lib/sequences-api';
 
-type SortKey = 'name' | 'email' | 'company' | 'createdAt';
+type SortKey = 'name' | 'email' | 'company' | 'replyStatus' | 'createdAt';
 
 const PAGE_SIZE = 10;
 
@@ -63,7 +63,10 @@ export default function LeadsPage(): React.JSX.Element {
       if (key === 'company') {
         return lead.company ?? '';
       }
-      return String(lead[key] ?? '');
+      if (key === 'replyStatus') {
+        return lead.replyStatus;
+      }
+      return String(lead[key as keyof Lead] ?? '');
     };
 
     return [...rows].sort((left, right) => {
@@ -476,6 +479,11 @@ export default function LeadsPage(): React.JSX.Element {
                           Company
                         </button>
                       </th>
+                      <th className="px-3 py-2">
+                        <button type="button" onClick={() => handleSort('replyStatus')}>
+                          Reply
+                        </button>
+                      </th>
                       <th className="px-3 py-2">Tags</th>
                       <th className="px-3 py-2">
                         <button type="button" onClick={() => handleSort('createdAt')}>
@@ -504,6 +512,9 @@ export default function LeadsPage(): React.JSX.Element {
                         <td className="px-3 py-2">{lead.name}</td>
                         <td className="px-3 py-2">{lead.email}</td>
                         <td className="px-3 py-2">{lead.company ?? '-'}</td>
+                        <td className="px-3 py-2" data-testid={`lead-reply-${lead.id}`}>
+                          {lead.replyStatus === 'REPLIED' ? 'Replied' : '—'}
+                        </td>
                         <td className="px-3 py-2">
                           <div className="flex flex-wrap gap-1">
                             {lead.tags.length === 0 ? (
@@ -620,6 +631,14 @@ export default function LeadsPage(): React.JSX.Element {
                     onChange={(event) => setDetailCompany(event.target.value)}
                     data-testid="lead-detail-company"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>Reply status</Label>
+                  <p className="text-sm text-slate-700" data-testid="lead-detail-reply-status">
+                    {selectedLead.replyStatus === 'REPLIED'
+                      ? `Replied${selectedLead.repliedAt ? ` (${formatDate(selectedLead.repliedAt)})` : ''}`
+                      : 'None'}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="detail-tag-ids">Tag IDs (comma separated)</Label>

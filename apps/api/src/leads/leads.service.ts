@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { LeadReplyStatus, Prisma } from '@prisma/client';
 import { parse } from 'csv-parse/sync';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -35,6 +35,8 @@ export interface LeadResponse {
   name: string;
   email: string;
   company: string | null;
+  replyStatus: LeadReplyStatus;
+  repliedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   tags: Array<{
@@ -479,6 +481,10 @@ export class LeadsService {
       };
     }
 
+    if (payload.replyStatus) {
+      where.replyStatus = payload.replyStatus;
+    }
+
     return where;
   }
 
@@ -503,6 +509,8 @@ export class LeadsService {
       name: lead.name,
       email: lead.email,
       company: lead.company,
+      replyStatus: lead.replyStatus,
+      repliedAt: lead.repliedAt,
       createdAt: lead.createdAt,
       updatedAt: lead.updatedAt,
       tags: lead.tags.map((leadTag) => ({

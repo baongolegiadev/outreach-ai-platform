@@ -10,7 +10,7 @@ Update trigger: Endpoints added/changed/removed
 > **Base URL (local)**: `http://localhost:3001/v1`  
 > **Authentication**: `Authorization: Bearer <JWT>`  
 > **Content-Type**: `application/json`  
-> **Last updated**: 2026-04-18
+> **Last updated**: 2026-05-13
 
 Concrete route list, request/response schemas, and error codes will be appended as endpoints ship (start with **task #004** auth and **#006** leads).
 
@@ -290,6 +290,8 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
   "name": "string",
   "email": "string",
   "company": "string|null",
+  "replyStatus": "NONE | REPLIED",
+  "repliedAt": "string|null - ISO datetime when first reply was recorded",
   "createdAt": "string - ISO datetime",
   "updatedAt": "string - ISO datetime",
   "tags": [
@@ -320,6 +322,7 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 - `search` (optional): case-insensitive partial match against name, email, or company
 - `company` (optional): case-insensitive partial match on company
 - `tagIds` (optional): comma-separated UUIDs, returns leads matching any provided tag
+- `replyStatus` (optional): `NONE` or `REPLIED`
 - `limit` (optional): default `25`, min `1`, max `100`
 - `offset` (optional): default `0`, min `0`
 
@@ -333,6 +336,8 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
       "name": "string",
       "email": "string",
       "company": "string|null",
+      "replyStatus": "NONE | REPLIED",
+      "repliedAt": "string|null - ISO datetime when first reply was recorded",
       "createdAt": "string - ISO datetime",
       "updatedAt": "string - ISO datetime",
       "tags": [
@@ -765,6 +770,53 @@ Current implementation enforces a small file-size limit and parses the CSV in-me
 
 ---
 
+#### [POST] /webhooks/inbound-replies
+
+**Auth required**: Yes — `Authorization: Bearer <INBOUND_REPLY_WEBHOOK_SECRET>` (same value as the `INBOUND_REPLY_WEBHOOK_SECRET` environment variable on the API).  
+**Global prefix**: This route is **outside** `/v1` so external ingesters can use a stable URL.
+
+**Description**: Records an inbound reply for a lead in a workspace. On success the API **stops all `ACTIVE` sequence enrollments** for that lead (idempotent `updateMany`), sets **`replyStatus` to `REPLIED`** and **`repliedAt`** on first transition from `NONE`, and optionally records a **dedupe key** when `externalMessageId` is supplied so duplicate provider deliveries are ignored.
+
+**Kanban / pipeline**: This endpoint does **not** move pipeline columns; stage rules are deferred to task **#015** and will be documented there when implemented.
+
+**Request body**:
+
+```json
+{
+  "workspaceId": "string - workspace UUID",
+  "leadEmail": "string - lead email address (case-insensitive match)",
+  "externalMessageId": "string - optional, max 512 chars; e.g. SMTP Message-Id for idempotent retries"
+}
+```
+
+**Response 200** (applied):
+
+```json
+{
+  "status": "applied",
+  "stoppedEnrollments": 0
+}
+```
+
+`stoppedEnrollments` is the number of rows moved from `ACTIVE` to `STOPPED`.
+
+**Response 200** (duplicate webhook, when `externalMessageId` was already processed for the workspace):
+
+```json
+{
+  "status": "duplicate"
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid webhook secret
+- `404` - No lead with that email in the workspace (also logged server-side for operators)
+- `422` - Validation error on JSON body
+- `500` - Internal server error
+
+---
+
 #### [GET] /track/opens/:token
 
 **Auth required**: No  
@@ -795,3 +847,4 @@ Current implementation enforces a small file-size limit and parses the CSV in-me
 | 2026-04-17 | Added sequences CRUD, steps, and enrollment endpoints                         |
 | 2026-04-17 | Added async sequence dispatch (`202`) and dead-letter visibility endpoints    |
 | 2026-04-18 | Documented public open-tracking pixel endpoint `GET /track/opens/:token`       |
+| 2026-05-13 | Reply ingestion webhook, lead `replyStatus` / `repliedAt`, list filter `replyStatus` |

@@ -11,6 +11,7 @@ async function bootstrap() {
     exclude: [
       'health',
       { path: 'track/opens/:token', method: RequestMethod.GET },
+      { path: 'webhooks/inbound-replies', method: RequestMethod.POST },
     ],
   });
   app.useGlobalPipes(

@@ -24,7 +24,8 @@ Run scripts from the **repository root** (paths below assume that).
 | **010** | Sequence builder UI | Frontend |
 | **011** | Outbound mailer queue | `scripts/011-outbound-mailer/test-queue.sh`, `test-send-to-email.sh` |
 | **012** | Open tracking | `scripts/012-open-tracking/test-open-tracking.sh`, `test-open-tracking-integration.mjs` |
-| **013**–**017** | (reply, analytics, pipeline, activity) | Not added yet |
+| **013** | Reply detection | `scripts/013-reply-detection/test-reply-detection.sh` · example body: `scripts/_shared/inbound-reply-webhook.example.json` |
+| **014**–**017** | (analytics, pipeline, activity) | Not added yet |
 
 ## Shared fixtures (`scripts/_shared/`)
 
@@ -39,7 +40,7 @@ These files are **data only** (JSON/CSV). **Do not run them as shell commands** 
 | `sequence-create.json` | Create a test sequence |
 | `sequence-step-create.json` | Create a test step |
 | `sequence-enroll.json` | Enroll payload (placeholder `leadIds`) |
-| `sample-leads.csv` | Sample CSV for import |
+| `inbound-reply-webhook.example.json` | Example body for reply webhook (`workspaceId`, `leadEmail`, optional `externalMessageId`) |
 
 ## Quick commands
 
@@ -57,6 +58,7 @@ scripts/009-sequences-api/test-sequences-api.sh
 scripts/011-outbound-mailer/test-queue.sh
 scripts/012-open-tracking/test-open-tracking.sh
 scripts/012-open-tracking/test-open-tracking.sh --integration
+scripts/013-reply-detection/test-reply-detection.sh
 ```
 
 Integration mode for open tracking (`--integration`) needs a `.env` at the repo root and at least one `SENT` outbound job (e.g. after running the task **011** queue script).

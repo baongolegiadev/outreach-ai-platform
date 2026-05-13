@@ -38,6 +38,11 @@ enum OutboundMessageEventType {
   OPENED
 }
 
+enum LeadReplyStatus {
+  NONE
+  REPLIED
+}
+
 model User {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email       String       @unique
@@ -60,6 +65,7 @@ model Workspace {
   sequenceSteps       SequenceStep[]
   sequenceEnrollments SequenceEnrollment[]
   outboundMessageJobs OutboundMessageJob[]
+  processedInboundReplies ProcessedInboundReply[]
 }
 
 model Membership {
@@ -80,11 +86,14 @@ model Lead {
   name        String
   email       String
   company     String?
+  replyStatus LeadReplyStatus @default(NONE)
+  repliedAt   DateTime? @db.Timestamptz(6)
   createdAt   DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tags        LeadTag[]
   enrollments SequenceEnrollment[]
+  processedInboundReplies ProcessedInboundReply[]
 
   @@unique([workspaceId, email])
   @@index([workspaceId, name])
@@ -236,4 +245,19 @@ model LeadTag {
 
   @@id([leadId, tagId])
   @@index([tagId, leadId])
+}
+
+/// Rows inserted when a provider supplies an `externalMessageId`; unique per workspace prevents duplicate webhook side effects.
+model ProcessedInboundReply {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId         String   @db.Uuid
+  externalMessageId   String
+  leadId              String   @db.Uuid
+  createdAt           DateTime @default(now()) @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  lead      Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([workspaceId, externalMessageId])
+  @@index([workspaceId, leadId])
 }
