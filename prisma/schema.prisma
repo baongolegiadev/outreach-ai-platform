@@ -12,6 +12,37 @@ enum MembershipRole {
   MEMBER
 }
 
+enum SequenceEnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  STOPPED
+}
+
+enum OutboundMessageStatus {
+  QUEUED
+  PROCESSING
+  SENT
+  DEAD_LETTER
+}
+
+enum OutboundMessageProvider {
+  SMTP
+  GMAIL_STUB
+}
+
+enum OutboundMessageEventType {
+  QUEUED
+  SENT
+  RETRY_SCHEDULED
+  DEAD_LETTER
+  OPENED
+}
+
+enum LeadReplyStatus {
+  NONE
+  REPLIED
+}
+
 model User {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email       String       @unique
@@ -30,6 +61,11 @@ model Workspace {
   memberships Membership[]
   leads       Lead[]
   tags        Tag[]
+  sequences   Sequence[]
+  sequenceSteps       SequenceStep[]
+  sequenceEnrollments SequenceEnrollment[]
+  outboundMessageJobs OutboundMessageJob[]
+  processedInboundReplies ProcessedInboundReply[]
 }
 
 model Membership {
@@ -50,15 +86,141 @@ model Lead {
   name        String
   email       String
   company     String?
+  replyStatus LeadReplyStatus @default(NONE)
+  repliedAt   DateTime? @db.Timestamptz(6)
   createdAt   DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tags        LeadTag[]
+  enrollments SequenceEnrollment[]
+  processedInboundReplies ProcessedInboundReply[]
 
   @@unique([workspaceId, email])
   @@index([workspaceId, name])
   @@index([workspaceId, company])
   @@index([workspaceId, createdAt])
+}
+
+model Sequence {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String              @db.Uuid
+  name        String
+  createdAt   DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime            @updatedAt @db.Timestamptz(6)
+  workspace   Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  steps       SequenceStep[]
+  enrollments SequenceEnrollment[]
+  outboundMessageJobs OutboundMessageJob[]
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, name])
+}
+
+model SequenceStep {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId  String    @db.Uuid
+  sequenceId   String    @db.Uuid
+  stepOrder    Int
+  delayMinutes Int
+  subject      String
+  body         String
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequence  Sequence  @relation(fields: [sequenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  outboundMessageJobs OutboundMessageJob[]
+
+  @@unique([sequenceId, stepOrder])
+  @@index([workspaceId, sequenceId])
+}
+
+model SequenceEnrollment {
+  id           String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId  String                   @db.Uuid
+  sequenceId   String                   @db.Uuid
+  leadId       String                   @db.Uuid
+  status       SequenceEnrollmentStatus @default(ACTIVE)
+  currentStep  Int                      @default(0)
+  nextSendAt   DateTime?                @db.Timestamptz(6)
+  startedAt    DateTime                 @default(now()) @db.Timestamptz(6)
+  completedAt  DateTime?                @db.Timestamptz(6)
+  stoppedAt    DateTime?                @db.Timestamptz(6)
+  createdAt    DateTime                 @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime                 @updatedAt @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequence  Sequence  @relation(fields: [sequenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  lead      Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  outboundMessageJobs OutboundMessageJob[]
+
+  @@unique([sequenceId, leadId])
+  @@index([workspaceId, status, nextSendAt])
+  @@index([workspaceId, sequenceId, status])
+  @@index([workspaceId, leadId])
+}
+
+model OutboundMessageJob {
+  id                   String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId          String                  @db.Uuid
+  sequenceId           String                  @db.Uuid
+  sequenceStepId       String                  @db.Uuid
+  sequenceEnrollmentId String                  @db.Uuid
+  leadId               String                  @db.Uuid
+  provider             OutboundMessageProvider @default(SMTP)
+  inboxIdentity        String
+  toEmail              String
+  subject              String
+  htmlBody             String
+  status               OutboundMessageStatus   @default(QUEUED)
+  attemptCount         Int                     @default(0)
+  maxAttempts          Int                     @default(3)
+  nextAttemptAt        DateTime                @default(now()) @db.Timestamptz(6)
+  sentAt               DateTime?               @db.Timestamptz(6)
+  deadLetteredAt       DateTime?               @db.Timestamptz(6)
+  lastError            String?
+  openTrackingToken    String?                 @unique
+  openedAt             DateTime?               @db.Timestamptz(6)
+  createdAt            DateTime                @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime                @updatedAt @db.Timestamptz(6)
+
+  workspace          Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequence           Sequence             @relation(fields: [sequenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequenceStep       SequenceStep         @relation(fields: [sequenceStepId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sequenceEnrollment SequenceEnrollment   @relation(fields: [sequenceEnrollmentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  attempts           OutboundMessageAttempt[]
+  events             OutboundMessageEvent[]
+
+  @@unique([sequenceEnrollmentId, sequenceStepId])
+  @@index([workspaceId, status, nextAttemptAt])
+  @@index([inboxIdentity, status, nextAttemptAt])
+}
+
+model OutboundMessageAttempt {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outboundMessageId String   @db.Uuid
+  attemptNumber    Int
+  success          Boolean
+  errorMessage     String?
+  transientError   Boolean
+  providerMessageId String?
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+
+  outboundMessage OutboundMessageJob @relation(fields: [outboundMessageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([outboundMessageId, createdAt])
+}
+
+model OutboundMessageEvent {
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outboundMessageId String                   @db.Uuid
+  type              OutboundMessageEventType
+  payload           Json?
+  createdAt         DateTime                 @default(now()) @db.Timestamptz(6)
+
+  outboundMessage OutboundMessageJob @relation(fields: [outboundMessageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([outboundMessageId, createdAt])
 }
 
 model Tag {
@@ -83,4 +245,19 @@ model LeadTag {
 
   @@id([leadId, tagId])
   @@index([tagId, leadId])
+}
+
+/// Rows inserted when a provider supplies an `externalMessageId`; unique per workspace prevents duplicate webhook side effects.
+model ProcessedInboundReply {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId         String   @db.Uuid
+  externalMessageId   String
+  leadId              String   @db.Uuid
+  createdAt           DateTime @default(now()) @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  lead      Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([workspaceId, externalMessageId])
+  @@index([workspaceId, leadId])
 }

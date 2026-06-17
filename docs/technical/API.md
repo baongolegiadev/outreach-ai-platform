@@ -10,7 +10,7 @@ Update trigger: Endpoints added/changed/removed
 > **Base URL (local)**: `http://localhost:3001/v1`  
 > **Authentication**: `Authorization: Bearer <JWT>`  
 > **Content-Type**: `application/json`  
-> **Last updated**: 2026-04-13
+> **Last updated**: 2026-05-13
 
 Concrete route list, request/response schemas, and error codes will be appended as endpoints ship (start with **task #004** auth and **#006** leads).
 
@@ -265,6 +265,577 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 
 ---
 
+#### [POST] /leads
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Create a workspace-scoped lead and optionally assign workspace tags.
+
+**Request body**:
+
+```json
+{
+  "name": "string - required, 1..160 chars",
+  "email": "string - required, valid email",
+  "company": "string - optional, 1..160 chars",
+  "tagIds": ["string - optional tag UUIDs in same workspace"]
+}
+```
+
+**Response 201**:
+
+```json
+{
+  "id": "string - lead UUID",
+  "name": "string",
+  "email": "string",
+  "company": "string|null",
+  "replyStatus": "NONE | REPLIED",
+  "repliedAt": "string|null - ISO datetime when first reply was recorded",
+  "createdAt": "string - ISO datetime",
+  "updatedAt": "string - ISO datetime",
+  "tags": [
+    {
+      "id": "string - tag UUID",
+      "name": "string - tag name"
+    }
+  ]
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `409` - Duplicate lead email in this workspace
+- `422` - Validation error (payload or invalid tag IDs)
+- `500` - Internal server error
+
+#### [GET] /leads
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: List workspace leads with search/filter and offset pagination.
+
+**Query params**:
+
+- `search` (optional): case-insensitive partial match against name, email, or company
+- `company` (optional): case-insensitive partial match on company
+- `tagIds` (optional): comma-separated UUIDs, returns leads matching any provided tag
+- `replyStatus` (optional): `NONE` or `REPLIED`
+- `limit` (optional): default `25`, min `1`, max `100`
+- `offset` (optional): default `0`, min `0`
+
+**Response 200**:
+
+```json
+{
+  "data": [
+    {
+      "id": "string - lead UUID",
+      "name": "string",
+      "email": "string",
+      "company": "string|null",
+      "replyStatus": "NONE | REPLIED",
+      "repliedAt": "string|null - ISO datetime when first reply was recorded",
+      "createdAt": "string - ISO datetime",
+      "updatedAt": "string - ISO datetime",
+      "tags": [
+        {
+          "id": "string - tag UUID",
+          "name": "string - tag name"
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "limit": 25,
+    "offset": 0,
+    "total": 1200,
+    "hasMore": true
+  }
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `422` - Validation error (query params)
+- `500` - Internal server error
+
+#### [GET] /leads/:leadId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Get a single lead in the current workspace.
+
+**Response 200**: Same shape as `POST /leads`.
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `404` - Lead not found in workspace
+- `500` - Internal server error
+
+#### [PATCH] /leads/:leadId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Update lead fields and optionally replace all lead tags.
+
+**Request body**:
+
+```json
+{
+  "name": "string - optional",
+  "email": "string - optional",
+  "company": "string - optional",
+  "tagIds": ["string - optional; replaces current tags when provided"]
+}
+```
+
+At least one field must be provided.
+
+**Response 200**: Same shape as `POST /leads`.
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `404` - Lead not found in workspace
+- `409` - Duplicate lead email in this workspace
+- `422` - Validation error (payload or invalid tag IDs)
+- `500` - Internal server error
+
+#### [DELETE] /leads/:leadId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Delete a lead in the current workspace.
+
+**Response 200**:
+
+```json
+{
+  "success": true
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `404` - Lead not found in workspace
+- `500` - Internal server error
+
+---
+
+#### [POST] /leads/import/csv
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Content-Type**: `multipart/form-data`  
+**Description**: Import leads from a CSV file and return a structured validation report. This endpoint uses a **partial commit** policy: valid rows are inserted; invalid rows are rejected and reported.
+
+**Duplicate email policy (per workspace)**: **skip duplicates** (rows with an email that already exists in the workspace are rejected with `DUPLICATE_EXISTING`). Duplicate emails **within the same CSV** are rejected with `DUPLICATE_IN_FILE`.
+
+**Upload limits**:
+
+- Max file size: `5MB` (requests exceeding this limit return `413`)
+
+**Request**:
+
+- Form field: `file` (the CSV file)
+
+**CSV header mapping** (case-insensitive; extra columns ignored):
+
+- `name` (required)
+- `email` (required)
+- `company` (optional)
+
+**Example CSV**:
+
+```csv
+name,email,company
+Jane Doe,jane@example.com,Acme Inc
+John Smith,john@contoso.com,Contoso
+```
+
+**Response 200**:
+
+```json
+{
+  "policy": {
+    "commit": "partial",
+    "duplicates": "skip"
+  },
+  "totals": {
+    "rows": 2,
+    "accepted": 2,
+    "rejected": 0
+  },
+  "rejectedRows": []
+}
+```
+
+**Rejected row shape**:
+
+```json
+{
+  "rowNumber": 3,
+  "reasons": ["INVALID_EMAIL", "MISSING_NAME"],
+  "values": {
+    "name": null,
+    "email": "not-an-email",
+    "company": "Acme Inc"
+  }
+}
+```
+
+**Possible `reasons` values**:
+
+- `MISSING_NAME`
+- `MISSING_EMAIL`
+- `INVALID_EMAIL`
+- `DUPLICATE_IN_FILE`
+- `DUPLICATE_EXISTING`
+- `INVALID_HEADERS` (missing required CSV headers)
+- `INVALID_CSV`
+- `TOO_MANY_ROWS`
+
+**Large file strategy**:
+
+Current implementation enforces a small file-size limit and parses the CSV in-memory. If/when larger imports are required, switch to a streaming parser (line-by-line) with chunked `createMany` inserts and incremental aggregation of the validation report.
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `413` - Uploaded file too large
+- `422` - Validation error (invalid CSV / headers)
+- `500` - Internal server error
+
+---
+
+#### [POST] /sequences
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Create a workspace-scoped sequence (campaign).
+
+**Request body**:
+
+```json
+{
+  "name": "string - required, 1..160 chars"
+}
+```
+
+**Response 201**:
+
+```json
+{
+  "id": "string - sequence UUID",
+  "name": "string",
+  "createdAt": "string - ISO datetime",
+  "updatedAt": "string - ISO datetime"
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid JWT
+- `403` - Missing workspace header or no workspace membership
+- `422` - Validation error
+- `500` - Internal server error
+
+#### [GET] /sequences
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: List sequences with offset pagination.
+
+**Query params**:
+
+- `search` (optional): case-insensitive partial match on sequence name
+- `limit` (optional): default `25`, min `1`, max `100`
+- `offset` (optional): default `0`, min `0`
+
+**Response 200**:
+
+```json
+{
+  "data": [
+    {
+      "id": "string - sequence UUID",
+      "name": "string",
+      "createdAt": "string - ISO datetime",
+      "updatedAt": "string - ISO datetime"
+    }
+  ],
+  "pagination": {
+    "limit": 25,
+    "offset": 0,
+    "total": 10,
+    "hasMore": false
+  }
+}
+```
+
+#### [GET] /sequences/:sequenceId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Get a single sequence in the current workspace.
+
+**Response 200**: Same shape as `POST /sequences`.
+
+#### [PATCH] /sequences/:sequenceId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Update a sequence.
+
+**Request body**:
+
+```json
+{
+  "name": "string - optional, 1..160 chars"
+}
+```
+
+**Error codes**:
+
+- `404` - Sequence not found in workspace
+- `422` - Validation error
+
+#### [DELETE] /sequences/:sequenceId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Delete a sequence and cascade-delete its steps and enrollments.
+
+**Response 200**:
+
+```json
+{
+  "success": true
+}
+```
+
+---
+
+#### [POST] /sequences/:sequenceId/steps
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Add an ordered step to a sequence.
+
+**Request body**:
+
+```json
+{
+  "stepOrder": "number - required, integer >= 0",
+  "delayMinutes": "number - required; first step may be 0, later steps must be >= 1",
+  "subject": "string - required; supports {{first_name}} and {{company}}",
+  "body": "string - required; supports {{first_name}} and {{company}}"
+}
+```
+
+**Response 201**:
+
+```json
+{
+  "id": "string - step UUID",
+  "sequenceId": "string - sequence UUID",
+  "stepOrder": 0,
+  "delayMinutes": 0,
+  "subject": "string",
+  "body": "string",
+  "createdAt": "string - ISO datetime",
+  "updatedAt": "string - ISO datetime"
+}
+```
+
+#### [GET] /sequences/:sequenceId/steps
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: List steps for a sequence in ascending `stepOrder`.
+
+**Response 200**: Array of step objects (same shape as `POST /sequences/:sequenceId/steps`).
+
+#### [PATCH] /sequences/:sequenceId/steps/:stepId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Update a step. Validation enforces delay rules and supported merge fields.
+
+#### [DELETE] /sequences/:sequenceId/steps/:stepId
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Delete a step.
+
+---
+
+#### [POST] /sequences/:sequenceId/enroll
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Enroll many workspace leads into a sequence. The server batches inserts and returns progress reporting.
+
+**Request body**:
+
+```json
+{
+  "leadIds": ["string - lead UUIDs (must belong to workspace)"],
+  "batchSize": "number - optional, 1..1000 (default 500)"
+}
+```
+
+**Response 200**:
+
+```json
+{
+  "totals": {
+    "requested": 3,
+    "validLeads": 2,
+    "created": 2,
+    "skippedAlreadyEnrolled": 0,
+    "invalidLeadIds": 1
+  },
+  "progress": [
+    {
+      "batch": 1,
+      "attempted": 2,
+      "created": 2,
+      "skippedAlreadyEnrolled": 0
+    }
+  ]
+}
+```
+
+**Error codes**:
+
+- `404` - Sequence not found in workspace
+- `422` - Validation error
+
+---
+
+#### [POST] /sequences/:sequenceId/dispatch
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: Queue due sequence messages asynchronously and return immediately.
+
+**Behavior**:
+
+- Returns `202 Accepted` (non-blocking enqueue path).
+- Creates queued outbound jobs for active enrollments whose `nextSendAt` is due (or unset).
+- Processing happens in background worker with per-inbox rate limits and retry/backoff policy.
+
+**Response 202**:
+
+```json
+{
+  "accepted": true,
+  "sequenceId": "string - sequence UUID",
+  "queuedJobs": 12
+}
+```
+
+#### [GET] /sequences/:sequenceId/dead-letters
+
+**Auth required**: Yes  
+**Workspace context**: `x-workspace-id` header required  
+**Description**: List dead-lettered outbound jobs for operator visibility.
+
+**Response 200**:
+
+```json
+[
+  {
+    "id": "string - job UUID",
+    "toEmail": "string - recipient address",
+    "subject": "string",
+    "attemptCount": 3,
+    "lastError": "string",
+    "deadLetteredAt": "string - ISO datetime"
+  }
+]
+```
+
+---
+
+#### [POST] /webhooks/inbound-replies
+
+**Auth required**: Yes — `Authorization: Bearer <INBOUND_REPLY_WEBHOOK_SECRET>` (same value as the `INBOUND_REPLY_WEBHOOK_SECRET` environment variable on the API).  
+**Global prefix**: This route is **outside** `/v1` so external ingesters can use a stable URL.
+
+**Description**: Records an inbound reply for a lead in a workspace. On success the API **stops all `ACTIVE` sequence enrollments** for that lead (idempotent `updateMany`), sets **`replyStatus` to `REPLIED`** and **`repliedAt`** on first transition from `NONE`, and optionally records a **dedupe key** when `externalMessageId` is supplied so duplicate provider deliveries are ignored.
+
+**Kanban / pipeline**: This endpoint does **not** move pipeline columns; stage rules are deferred to task **#015** and will be documented there when implemented.
+
+**Request body**:
+
+```json
+{
+  "workspaceId": "string - workspace UUID",
+  "leadEmail": "string - lead email address (case-insensitive match)",
+  "externalMessageId": "string - optional, max 512 chars; e.g. SMTP Message-Id for idempotent retries"
+}
+```
+
+**Response 200** (applied):
+
+```json
+{
+  "status": "applied",
+  "stoppedEnrollments": 0
+}
+```
+
+`stoppedEnrollments` is the number of rows moved from `ACTIVE` to `STOPPED`.
+
+**Response 200** (duplicate webhook, when `externalMessageId` was already processed for the workspace):
+
+```json
+{
+  "status": "duplicate"
+}
+```
+
+**Error codes**:
+
+- `401` - Missing or invalid webhook secret
+- `404` - No lead with that email in the workspace (also logged server-side for operators)
+- `422` - Validation error on JSON body
+- `500` - Internal server error
+
+---
+
+#### [GET] /track/opens/:token
+
+**Auth required**: No  
+**Global prefix**: This route is **outside** `/v1` so pixel URLs stay short and stable in email clients.  
+**Description**: Serves a 1×1 transparent GIF and, on the **first** successful load for a valid token, records an open on the linked `OutboundMessageJob` (`openedAt` timestamp + `OutboundMessageEvent` of type `OPENED`). Invalid, duplicate, or ineligible loads still return the same GIF (no error body) so clients cannot probe job existence from HTTP status alone.
+
+**Path parameters**:
+
+- `token` — opaque `openTrackingToken` issued when the outbound job was created (hex string).
+
+**Response 200**:
+
+- Body: binary transparent `image/gif`
+- Headers: `Content-Type: image/gif`, `Cache-Control: no-store`
+
+**Notes**: Privacy, bot/prefetch behavior, and ESP-native alternatives are documented in [`OPEN_TRACKING.md`](./OPEN_TRACKING.md).
+
+---
+
 ## Changelog
 
 | Date       | Change                                                                        |
@@ -272,3 +843,8 @@ Both strategies are enforced by the workspace guard layer. A user must be a memb
 | 2026-04-12 | Initial shell — stack and auth model noted                                    |
 | 2026-04-13 | Added `/health`, stable error-code mappings, and base-route clarification     |
 | 2026-04-13 | Added auth endpoints, JWT/workspace strategy, and protected workspace samples |
+| 2026-04-15 | Added workspace-scoped leads CRUD endpoints with search/filter/tag support    |
+| 2026-04-17 | Added sequences CRUD, steps, and enrollment endpoints                         |
+| 2026-04-17 | Added async sequence dispatch (`202`) and dead-letter visibility endpoints    |
+| 2026-04-18 | Documented public open-tracking pixel endpoint `GET /track/opens/:token`       |
+| 2026-05-13 | Reply ingestion webhook, lead `replyStatus` / `repliedAt`, list filter `replyStatus` |

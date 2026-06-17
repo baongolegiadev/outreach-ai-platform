@@ -8,7 +8,7 @@ For design tokens and UX flows see DESIGN_SYSTEM.md (@ui-ux-designer).
 
 # System Architecture
 
-> Last updated: 2026-04-12  
+> Last updated: 2026-05-13  
 > Version: 0.1.0
 
 ---
@@ -17,7 +17,7 @@ For design tokens and UX flows see DESIGN_SYSTEM.md (@ui-ux-designer).
 
 Outreach AI Platform is a **pnpm monorepo** with a **Next.js** browser client and a **NestJS** API backed by **PostgreSQL** (hosted on **Supabase**). The Nest API owns authentication (JWT), workspace-scoped business logic, queues for outbound email, and webhooks/polling endpoints for reply and tracking events. The Next app provides the authenticated UI (dashboard, leads, sequences, pipeline, analytics) and calls the API over HTTPS.
 
-Key architectural choices: **clear separation** between web (Vercel) and API (Railway), **Prisma** as the single ORM for relational data, and **asynchronous workers** for mail delivery and retries (specific broker TBD—see `DECISIONS.md` and PRD open questions).
+Key architectural choices: **clear separation** between web (Vercel) and API (Railway), **Prisma** as the single ORM for relational data, and a **database-backed asynchronous worker** for mail delivery/retries (see ADR-002 in `DECISIONS.md`).
 
 ```
   Browser (Next.js on Vercel)
@@ -26,10 +26,10 @@ Key architectural choices: **clear separation** between web (Vercel) and API (Ra
      NestJS API (Railway)
        │        │
        ▼        ├──────────► PostgreSQL (Supabase)
-   Workers            Redis / queue [TBD]
+   Workers      PostgreSQL-backed queue
        │
        ├──────────► SMTP / Gmail outbound
-       └──────────► Inbound reply channel [TBD]
+       └──────────► Inbound reply webhook (`POST /webhooks/inbound-replies`, shared secret)
 ```
 
 ---
@@ -59,11 +59,16 @@ Key architectural choices: **clear separation** between web (Vercel) and API (Ra
 
 The Next.js app uses the **App Router**. Server and client components split will follow feature implementation. **Server state** (lists, detail, mutations) should use a consistent approach (e.g. React Query) once introduced in task work.
 
-**Routing**: `apps/web/src/app/` (exact structure created in task #001 / #005).
+**Routing**: `apps/web/src/app/` with route groups:
+
+- `(auth)` for `/login` and `/signup`
+- `(app)` for the authenticated shell at `/app`
 
 **State management**: [TBD in implementation — prefer React Query for API data.]
 
-**Data fetching**: Authenticated fetches to Nest **base URL** from env; no secrets in client bundle.
+**Data fetching**: Authenticated fetches to Nest **base URL** from env (`NEXT_PUBLIC_API_URL`); no secrets in client bundle.
+
+**Styling/UI primitives**: Tailwind CSS v4 + shadcn/ui component pattern in `apps/web/src/components/ui`.
 
 ---
 
@@ -102,17 +107,20 @@ NestJS modules align to domains: **auth**, **workspaces**, **leads**, **sequence
 
 1. User submits email/password to Nest auth endpoints.
 2. API validates credentials against Prisma `User` records.
-3. API issues **JWT**; client stores per product security choice (httpOnly cookie preferred — decide in tasks).
+3. API issues **JWT**; current web client stores session metadata in `localStorage` and mirrors access token to a non-httpOnly cookie for route middleware checks.
 4. Subsequent requests include JWT; Nest guards enforce workspace authorization.
 
 ### Outbound send (summary)
 
-1. Client requests enqueue/enroll send job.
-2. API persists outbox/job row and pushes to queue.
-3. Worker sends via SMTP/Gmail, records result, retries on transient failure.
-4. Activity + analytics updated from worker events.
+1. Client requests sequence dispatch; API returns `202 Accepted` immediately.
+2. API persists `OutboundMessageJob` rows plus queue events.
+3. In-process Nest worker polls due jobs, enforces per-inbox rate limit, and delivers via SMTP or Gmail stub adapter. Sent HTML embeds a 1×1 open-tracking pixel whose URL is built from `API_PUBLIC_URL`; image loads hit `GET /track/opens/:token` (public, no JWT) and record at most one open per job for analytics (see `OPEN_TRACKING.md`).
+4. Worker writes attempts/events, applies exponential retry backoff, and dead-letters failed jobs after retry budget is exhausted.
+5. Sequence enrollment progress updates (`currentStep`, `nextSendAt`, completion state) are persisted from worker outcomes.
 
 Detailed diagrams belong here as implementation lands.
+
+> Security follow-up: move to server-issued httpOnly cookie/BFF token handling when backend support is added, and remove JS-accessible token storage.
 
 ---
 
@@ -145,5 +153,5 @@ Canonical **design system** lives in [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md) (@
 
 | Item                               | Impact                 | Plan                        |
 | ---------------------------------- | ---------------------- | --------------------------- |
-| Reply detection approach undecided | Blocks full FR-050–052 | Resolve in ADR + spike task |
-| Queue broker not pinned            | Worker reliability     | ADR + infra task            |
+| Reply detection approach | Was open for FR-050–052 | **ADR-004** — webhook v1 shipped; native Gmail/IMAP may supersede later |
+| In-process worker shares API runtime | Worker isolation/scaling | Move worker to dedicated process when throughput requires |

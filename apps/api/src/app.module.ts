@@ -5,6 +5,10 @@ import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ProtectedController } from './protected/protected.controller';
+import { LeadsModule } from './leads/leads.module';
+import { SequencesModule } from './sequences/sequences.module';
+import { OpenTrackingModule } from './open-tracking/open-tracking.module';
+import { InboundReplyModule } from './inbound-reply/inbound-reply.module';
 
 @Module({
   imports: [
@@ -15,6 +19,10 @@ import { ProtectedController } from './protected/protected.controller';
     }),
     PrismaModule,
     AuthModule,
+    LeadsModule,
+    SequencesModule,
+    OpenTrackingModule,
+    InboundReplyModule,
   ],
   controllers: [HealthController, ProtectedController],
   providers: [],

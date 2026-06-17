@@ -1,14 +1,14 @@
 ---
 id: '006'
 title: 'Leads REST API: CRUD, search, filter, tags'
-status: 'todo'
+status: 'done'
 area: 'backend'
 agent: '@backend-developer'
 priority: 'normal'
 created_at: '2026-04-12'
 due_date: null
-started_at: null
-completed_at: null
+started_at: '2026-04-15'
+completed_at: '2026-04-15'
 prd_refs: ['FR-020', 'FR-021', 'FR-023', 'FR-024']
 blocks: ['007', '008', '009', '015']
 blocked_by: ['002', '003', '004']
@@ -20,12 +20,12 @@ Expose **workspace-scoped** REST endpoints to create, read, update, and delete l
 
 ## Acceptance Criteria
 
-- [ ] CRUD endpoints documented in `docs/technical/API.md`.
-- [ ] All queries filter by authenticated workspace; attempt to access other workspace IDs returns 403/404 per policy.
-- [ ] Tag assignment endpoints or nested payloads defined and tested.
-- [ ] Pagination defaults documented (cursor or offset).
-- [ ] Relevant tests written and passing.
-- [ ] Relevant documentation updated.
+- [x] CRUD endpoints documented in `docs/technical/API.md`.
+- [x] All queries filter by authenticated workspace; attempt to access other workspace IDs returns 403/404 per policy.
+- [x] Tag assignment endpoints or nested payloads defined and tested.
+- [x] Pagination defaults documented (cursor or offset).
+- [x] Relevant tests written and passing.
+- [x] Relevant documentation updated.
 
 ## Technical Notes
 
@@ -36,3 +36,4 @@ Expose **workspace-scoped** REST endpoints to create, read, update, and delete l
 | Date       | Agent / Human | Event        |
 | ---------- | ------------- | ------------ |
 | 2026-04-12 | human         | Task created |
+| 2026-04-15 | codex         | Task completed |
